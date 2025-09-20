@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85177d78c48d9bf6752017885025f3d5",
+    "content-hash": "199114663e81fc3f3fe903e6c8808b3e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2311,6 +2311,65 @@
                 }
             ],
             "time": "2024-12-08T08:18:47+00:00"
+        },
+        {
+            "name": "mohamedgaldi/vilt-filepond",
+            "version": "v1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mohamed-Galdi/vilt-filepond.git",
+                "reference": "657459bd0396db95bf177a876cd76929cd2f4bde"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mohamed-Galdi/vilt-filepond/zipball/657459bd0396db95bf177a876cd76929cd2f4bde",
+                "reference": "657459bd0396db95bf177a876cd76929cd2f4bde",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MohamedGaldi\\ViltFilepond\\ViltFilePondServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MohamedGaldi\\ViltFilepond\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mohamed Galdi",
+                    "email": "contact.galdi@gmail.com"
+                }
+            ],
+            "description": "A Laravel package for handling file uploads with FilePond in VILT stack",
+            "homepage": "https://github.com/mohamedgaldi/vilt-filepond",
+            "keywords": [
+                "Vilt stack",
+                "file upload",
+                "filepond",
+                "laravel",
+                "upload",
+                "vilt",
+                "vue"
+            ],
+            "support": {
+                "email": "contact.galdi@gmail.com",
+                "issues": "https://github.com/mohamedgaldi/vilt-filepond/issues",
+                "source": "https://github.com/mohamedgaldi/vilt-filepond"
+            },
+            "time": "2025-07-17T18:04:57+00:00"
         },
         {
             "name": "monolog/monolog",

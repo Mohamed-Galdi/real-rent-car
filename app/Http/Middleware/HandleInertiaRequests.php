@@ -46,6 +46,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'fileUploadConfig' => [
+                'locale' => config('vilt-filepond.locale'),
+                'chunkSize' => config('vilt-filepond.chunk_size'),
+            ],
         ];
     }
 }

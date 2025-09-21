@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Features;
+use App\Enums\UserRole;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -45,7 +46,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Preserve intended() but provide a role-based default route
+        $default = match ($user->role) {
+            UserRole::ADMIN => route('admin.home', absolute: false),
+            UserRole::CLIENT => route('client.home', absolute: false),
+            default => route('home', absolute: false),
+        };
+
+        return redirect()->intended($default);
     }
 
     /**

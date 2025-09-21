@@ -12,4 +12,9 @@ class CarsController extends Controller
         // Empty page placeholder for now
         return inertia('Admin/Cars/Index');
     }
+
+    public function edit(Request $request)
+    {
+        return inertia('Admin/Cars/Edit');
+    }
 }

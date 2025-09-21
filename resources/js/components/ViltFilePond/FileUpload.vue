@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import vueFilePond from "vue-filepond";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
@@ -75,17 +75,17 @@ const emit = defineEmits([
 ]);
 
 // Reactive state
-const page = usePage();
-const files = ref([]);
-const tempFolders = ref([]);
-const filePondRef = ref(null);
+const page = usePage<any>();
+const files = ref<any[]>([]);
+const tempFolders = ref<string[]>([]);
+const filePondRef = ref<any>(null);
 
 const wrapperStyle = computed(() => ({
     width: props.width,
 }));
 
 // Locale configuration
-const LOCALE_MAP = {
+const LOCALE_MAP: Record<string, any> = {
     ar: ar_AR,
     fr: fr_FR,
     es: es_ES,
@@ -113,8 +113,27 @@ function initializeLocale() {
 const chunkFileSize =
     page.props.fileUploadConfig?.chunkSize || 1024 * 1024 * 10; // 10MB
 
+// Helper: Fallback route builder if Ziggy's route() is not available
+function routeOrFallback(name: string, params: Record<string, any> = {}) {
+    const hasRoute = typeof window !== 'undefined' && typeof (window as any).route === 'function';
+    if (hasRoute) {
+        return (window as any).route(name, params);
+    }
+    const baseMap = {
+        'filepond.upload': '/filepond/upload',
+        'filepond.patch': '/filepond/patch',
+        'filepond.revert': '/filepond/revert',
+        'filepond.restore': '/filepond/restore',
+    };
+    const base = (baseMap as any)[name] || '';
+    if (name === 'filepond.revert' && (params as any).folder) {
+        return `${base}?folder=${encodeURIComponent((params as any).folder)}`;
+    }
+    return base;
+}
+
 // Parse upload response (handles both JSON and plain text)
-function parseUploadResponse(responseText) {
+function parseUploadResponse(responseText: any) {
     // Check if it's an XMLHttpRequest object and extract responseText
     if (
         responseText &&
@@ -160,14 +179,14 @@ function parseUploadResponse(responseText) {
 }
 
 // Add temporary folder to state
-function addTempFolder(folder, file) {
+function addTempFolder(folder: string, file: any) {
     tempFolders.value.push(folder);
     emit("fileAdded", { folder, file });
     emit("update:modelValue", [...tempFolders.value]);
 }
 
 // Handle file revert (removal of temporary files)
-function handleRevert(uniqueId, load, error) {
+function handleRevert(uniqueId: string, load: any, error: (msg: string) => void) {
     if (!uniqueId) {
         error("No unique ID provided");
         return;
@@ -184,10 +203,10 @@ function handleRevert(uniqueId, load, error) {
     emit("update:modelValue", [...tempFolders.value]);
 
     // Send delete request to server
-    fetch(route("filepond.revert", { folder: uniqueId }), {
+    fetch(routeOrFallback("filepond.revert", { folder: uniqueId }), {
         method: "DELETE",
         headers: {
-            "X-CSRF-TOKEN": page.props.csrf_token,
+            "X-CSRF-TOKEN": String(page.props.csrf_token),
             Accept: "application/json",
         },
     })
@@ -211,14 +230,14 @@ function handleRevert(uniqueId, load, error) {
 }
 
 // Handle removal of existing files
-function handleFileRemove(error, file) {
+function handleFileRemove(error: any, file: any) {
     if (error) return;
 
     // Check if this is a local file (existing file)
     if ((file.origin === 3 || file.origin === 1) && file.source) {
-        const existingFile = props.initialFiles.find(
-            (f) => f.url === file.source
-        );
+        const existingFile = (props.initialFiles as any[]).find(
+            (f: any) => f.url === file.source
+        ) as any;
 
         if (existingFile?.id) {
             emit("fileRemoved", {
@@ -243,20 +262,20 @@ function resetFiles() {
 }
 
 // Server configuration for FilePond
-const serverOptions = {
+const serverOptions: any = {
     process: {
-        url: route("filepond.upload"),
+        url: routeOrFallback("filepond.upload"),
         method: "POST",
         headers: {
-            "X-CSRF-TOKEN": page.props.csrf_token,
+            "X-CSRF-TOKEN": String(page.props.csrf_token),
         },
-        ondata: (formData) => {
+        ondata: (formData: FormData) => {
             if (props.collection) {
                 formData.append("collection", props.collection);
             }
             return formData;
         },
-        onload: (response) => {
+        onload: (response: any) => {
             // Extract response text from XMLHttpRequest object
             let responseText = response;
             if (
@@ -278,7 +297,7 @@ const serverOptions = {
         },
     },
     patch: {
-        url: route("filepond.patch") + "?patch=",
+        url: routeOrFallback("filepond.patch") + "?patch=",
         method: "PATCH",
         headers: {
             "X-CSRF-TOKEN": page.props.csrf_token,
@@ -316,8 +335,8 @@ const serverOptions = {
         },
     },
     revert: handleRevert,
-    restore: route("filepond.restore") + "?restore=",
-    load: (source, load, error) => {
+    restore: routeOrFallback("filepond.restore") + "?restore=",
+    load: (source: string, load: (b: Blob) => void, error: (msg: string) => void) => {
         fetch(source)
             .then((response) => response.blob())
             .then(load)
@@ -344,10 +363,10 @@ const filePondOptions = computed(() => ({
 // Watch for external modelValue changes - simplified
 watch(
     () => props.modelValue,
-    (newValue) => {
+    (newValue: any) => {
         const currentValue = tempFolders.value;
         if (JSON.stringify(newValue) !== JSON.stringify(currentValue)) {
-            tempFolders.value = [...(newValue || [])];
+            tempFolders.value = [...(((newValue || []) as string[]))];
         }
     },
     { deep: true }
@@ -358,13 +377,13 @@ onMounted(() => {
     initializeLocale();
 
     // Initialize modelValue
-    if (props.modelValue?.length > 0) {
-        tempFolders.value = [...props.modelValue];
+    if ((props.modelValue as any[])?.length > 0) {
+        tempFolders.value = [...((props.modelValue as any[]) as string[])];
     }
 
     // Initialize initial files
-    if (props.initialFiles?.length > 0) {
-        files.value = props.initialFiles.map((file) => ({
+    if ((props.initialFiles as any[])?.length > 0) {
+        files.value = (props.initialFiles as any[]).map((file: any) => ({
             source: file.url,
             options: { type: "local" },
         }));
@@ -398,83 +417,3 @@ defineExpose({
         />
     </div>
 </template>
-<style scoped>
-.filepond-wrapper {
-    @apply w-full;
-}
-
-/* Light theme */
-:deep(.filepond--root) {
-    @apply font-sans;
-}
-
-:deep(.filepond--panel-root) {
-    @apply bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg;
-}
-
-:deep(.filepond--drop-label) {
-    @apply text-gray-600;
-}
-
-:deep(.filepond--item-panel) {
-    @apply bg-white border border-gray-200 rounded-lg;
-}
-
-:deep(.filepond--file-status-main),
-:deep(.filepond--file-info-main) {
-    @apply text-gray-800;
-}
-
-:deep(.filepond--file-status-sub),
-:deep(.filepond--file-info-sub) {
-    @apply text-gray-600;
-}
-
-/* Force white text for image previews - when image-preview-wrapper exists */
-:deep(
-        .filepond--file:has(.filepond--image-preview-wrapper)
-            .filepond--file-status-main
-    ),
-:deep(
-        .filepond--file:has(.filepond--image-preview-wrapper)
-            .filepond--file-info-main
-    ) {
-    @apply text-white !important;
-}
-
-:deep(
-        .filepond--file:has(.filepond--image-preview-wrapper)
-            .filepond--file-status-sub
-    ),
-:deep(
-        .filepond--file:has(.filepond--image-preview-wrapper)
-            .filepond--file-info-sub
-    ) {
-    @apply text-gray-200 !important;
-}
-
-/* Dark theme */
-.filepond-dark {
-    :deep(.filepond--panel-root) {
-        @apply bg-gray-800 border-gray-600;
-    }
-
-    :deep(.filepond--drop-label) {
-        @apply text-gray-300;
-    }
-
-    :deep(.filepond--item-panel) {
-        @apply bg-gray-700 border-gray-600;
-    }
-
-    :deep(.filepond--file-status-main),
-    :deep(.filepond--file-info-main) {
-        @apply text-gray-100;
-    }
-
-    :deep(.filepond--file-status-sub),
-    :deep(.filepond--file-info-sub) {
-        @apply text-gray-300;
-    }
-}
-</style>

@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use MohamedGaldi\ViltFilepond\Traits\HasFiles;
 
 class Car extends Model
 {
     use SoftDeletes;
+    use HasFiles;
 
     /**
      * The attributes that are mass assignable.
@@ -46,6 +49,15 @@ class Car extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'image_url',
+    ];
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -72,5 +84,30 @@ class Car extends Model
     public function getFullNameAttribute()
     {
         return "{$this->year} {$this->make} {$this->model}";
+    }
+
+    /**
+     * Get the car image URL. Uses the first file in the 'image' collection if available,
+     * otherwise falls back to the default public image.
+     */
+    public function getImageUrlAttribute(): string
+    {
+        // If the relation is already loaded, use it to avoid N+1
+        $file = null;
+        if ($this->relationLoaded('files')) {
+            $file = $this->files->firstWhere('collection', 'image');
+        }
+
+        // Otherwise query for the first image file
+        if (!$file) {
+            $file = $this->files()->where('collection', 'image')->first();
+        }
+
+        if ($file && $file->path) {
+            return Storage::url($file->path);
+        }
+
+        // Fallback to the public default image
+        return asset('images/car-default.jpg');
     }
 }

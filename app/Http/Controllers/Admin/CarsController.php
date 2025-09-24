@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\CarColor;
+use App\Enums\FuelType;
 use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -53,6 +55,10 @@ class CarsController extends Controller
         return Inertia::render('Admin/Cars/Edit', [
             'car' => null,
             'imageFiles' => [],
+            'enums' => [
+                'colors' => CarColor::forFrontend(),
+                'fuelTypes' => FuelType::forFrontend(),
+            ],
         ]);
     }
 
@@ -66,12 +72,12 @@ class CarsController extends Controller
             'model' => ['required', 'string', 'max:255'],
             'year' => ['required', 'integer', 'min:1900', 'max:2100'],
             'license_plate' => ['required', 'string', 'max:255', 'unique:cars,license_plate'],
-            'color' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', Rule::in(array_map('strtolower', CarColor::values()))],
             'price_per_day' => ['required', 'numeric', 'min:0'],
             'mileage' => ['required', 'integer', 'min:0'],
             'transmission' => ['required', Rule::in(['automatic', 'manual'])],
             'seats' => ['required', 'integer', 'min:1'],
-            'fuel_type' => ['required', 'string', 'max:255'],
+            'fuel_type' => ['required', 'string', Rule::in(array_map('strtolower', FuelType::values()))],
             'description' => ['nullable', 'string'],
             'available' => ['boolean'],
             // File upload (single image via temp folder IDs)
@@ -113,6 +119,10 @@ class CarsController extends Controller
         return Inertia::render('Admin/Cars/Edit', [
             'car' => $car,
             'imageFiles' => $imageFiles,
+            'enums' => [
+                'colors' => CarColor::forFrontend(),
+                'fuelTypes' => FuelType::forFrontend(),
+            ],
         ]);
     }
 
@@ -128,12 +138,12 @@ class CarsController extends Controller
             'license_plate' => [
                 'required', 'string', 'max:255', Rule::unique('cars', 'license_plate')->ignore($car->id),
             ],
-            'color' => ['required', 'string', 'max:255'],
+            'color' => ['required', 'string', Rule::in(array_map('strtolower', CarColor::values()))],
             'price_per_day' => ['required', 'numeric', 'min:0'],
             'mileage' => ['required', 'integer', 'min:0'],
             'transmission' => ['required', Rule::in(['automatic', 'manual'])],
             'seats' => ['required', 'integer', 'min:1'],
-            'fuel_type' => ['required', 'string', 'max:255'],
+            'fuel_type' => ['required', 'string', Rule::in(array_map('strtolower', FuelType::values()))],
             'description' => ['nullable', 'string'],
             'available' => ['boolean'],
             // File updates for single image

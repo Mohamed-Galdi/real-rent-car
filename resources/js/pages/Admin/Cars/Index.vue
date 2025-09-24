@@ -51,7 +51,7 @@ function destroyCar(id: number) {
             <div class="flex items-center justify-between gap-4">
                 <h1 class="text-2xl font-semibold">Cars</h1>
                 <Link href="/admin/cars/create">
-                    <Button>
+                    <Button >
                         + New Car
                     </Button>
                 </Link>

@@ -4,14 +4,14 @@ namespace App\Enums;
 
 enum FuelType: string
 {
-    case GASOLINE = 'Gasoline';
-    case DIESEL = 'Diesel';
-    case HYBRID = 'Hybrid';
-    case ELECTRIC = 'Electric';
-    case PLUGIN_HYBRID = 'Plug-in Hybrid';
-    case LPG = 'LPG';
-    case CNG = 'CNG';
-    case HYDROGEN = 'Hydrogen';
+    case GASOLINE = 'gasoline';
+    case DIESEL = 'diesel';
+    case HYBRID = 'hybrid';
+    case ELECTRIC = 'electric';
+    case PLUGIN_HYBRID = 'plug-in hybrid';
+    case LPG = 'lpg';
+    case CNG = 'cng';
+    case HYDROGEN = 'hydrogen';
 
     public static function values(): array
     {

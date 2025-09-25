@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\CarColor;
+use App\Enums\CarStatus;
+use App\Enums\FuelType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -29,7 +32,7 @@ class Car extends Model
         'seats',
         'fuel_type',
         'description',
-        'available',
+        'status',
     ];
 
     /**
@@ -42,7 +45,9 @@ class Car extends Model
         'price_per_day' => 'decimal:2',
         'mileage' => 'integer',
         'seats' => 'integer',
-        'available' => 'boolean',
+        'status' => CarStatus::class,
+        'fuel_type' => FuelType::class,
+        'color' => CarColor::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

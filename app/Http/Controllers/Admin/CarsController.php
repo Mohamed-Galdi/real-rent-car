@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Enums\CarColor;
+use App\Enums\CarStatus;
 use App\Enums\FuelType;
 use App\Models\Car;
 use Illuminate\Http\Request;
@@ -27,6 +28,14 @@ class CarsController extends Controller
      */
     public function index(Request $request): Response
     {
+        $status = $request->input('status');
+        
+        // Get status counts for the filter
+        $statusCounts = Car::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
         $cars = Car::query()->with('files')
             ->when($request->string('search')->toString(), function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -35,15 +44,30 @@ class CarsController extends Controller
                         ->orWhere('license_plate', 'like', "%{$search}%");
                 });
             })
+            ->when($status && $status !== 'all', function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString();
+
+        $statuses = collect(CarStatus::cases())->mapWithKeys(function ($status) use ($statusCounts) {
+            return [
+                $status->value => [
+                    'label' => $status->label(),
+                    'count' => $statusCounts[$status->value] ?? 0,
+                    'color' => $status->color(),
+                ]
+            ];
+        })->toArray();
 
         return Inertia::render('Admin/Cars/Index', [
             'cars' => $cars,
             'filters' => [
                 'search' => $request->string('search')->toString(),
+                'status' => $status,
             ],
+            'statuses' => $statuses,
         ]);
     }
 
@@ -58,6 +82,11 @@ class CarsController extends Controller
             'enums' => [
                 'colors' => CarColor::forFrontend(),
                 'fuelTypes' => FuelType::forFrontend(),
+                'statuses' => array_map(fn($status) => [
+                    'value' => $status->value,
+                    'label' => $status->label(),
+                    'color' => $status->color()
+                ], CarStatus::cases()),
             ],
         ]);
     }
@@ -72,15 +101,14 @@ class CarsController extends Controller
             'model' => ['required', 'string', 'max:255'],
             'year' => ['required', 'integer', 'min:1900', 'max:2100'],
             'license_plate' => ['required', 'string', 'max:255', 'unique:cars,license_plate'],
-            'color' => ['required', 'string', Rule::in(array_map('strtolower', CarColor::values()))],
+            'color' => ['required', 'string', Rule::enum(CarColor::class)],
             'price_per_day' => ['required', 'numeric', 'min:0'],
             'mileage' => ['required', 'integer', 'min:0'],
             'transmission' => ['required', Rule::in(['automatic', 'manual'])],
             'seats' => ['required', 'integer', 'min:1'],
-            'fuel_type' => ['required', 'string', Rule::in(array_map('strtolower', FuelType::values()))],
+            'fuel_type' => ['required', 'string', Rule::enum(FuelType::class)],
             'description' => ['nullable', 'string'],
-            'available' => ['boolean'],
-            // File upload (single image via temp folder IDs)
+            'status' => ['required', 'string', Rule::enum(CarStatus::class)],
             'image' => ['array'],
             'image.*' => ['string'],
         ]);
@@ -122,6 +150,11 @@ class CarsController extends Controller
             'enums' => [
                 'colors' => CarColor::forFrontend(),
                 'fuelTypes' => FuelType::forFrontend(),
+                'statuses' => array_map(fn($status) => [
+                    'value' => $status->value,
+                    'label' => $status->label(),
+                    'color' => $status->color()
+                ], CarStatus::cases()),
             ],
         ]);
     }
@@ -138,14 +171,14 @@ class CarsController extends Controller
             'license_plate' => [
                 'required', 'string', 'max:255', Rule::unique('cars', 'license_plate')->ignore($car->id),
             ],
-            'color' => ['required', 'string', Rule::in(array_map('strtolower', CarColor::values()))],
+            'color' => ['required', 'string', Rule::enum(CarColor::class)],
             'price_per_day' => ['required', 'numeric', 'min:0'],
             'mileage' => ['required', 'integer', 'min:0'],
             'transmission' => ['required', Rule::in(['automatic', 'manual'])],
             'seats' => ['required', 'integer', 'min:1'],
-            'fuel_type' => ['required', 'string', Rule::in(array_map('strtolower', FuelType::values()))],
+            'fuel_type' => ['required', 'string', Rule::enum(FuelType::class)],
             'description' => ['nullable', 'string'],
-            'available' => ['boolean'],
+            'status' => ['required', 'string', Rule::enum(CarStatus::class)],
             // File updates for single image
             'image_temp_folders' => ['array'],
             'image_temp_folders.*' => ['string'],

@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\CarColor;
+use App\Enums\CarStatus;
+use App\Enums\FuelType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,14 +20,14 @@ return new class extends Migration
             $table->string('model');
             $table->integer('year');
             $table->string('license_plate')->unique();
-            $table->string('color');
+            $table->string('color')->default(CarColor::WHITE->value);
             $table->decimal('price_per_day', 10, 2);
             $table->integer('mileage');
             $table->enum('transmission', ['automatic', 'manual']);
             $table->integer('seats');
-            $table->string('fuel_type');
+            $table->string('fuel_type')->default(FuelType::GASOLINE->value);
             $table->text('description')->nullable();
-            $table->boolean('available')->default(true);
+            $table->string('status')->default(CarStatus::AVAILABLE->value);
             $table->timestamps();
             $table->softDeletes();
         });

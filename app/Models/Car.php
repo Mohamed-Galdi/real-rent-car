@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use MohamedGaldi\ViltFilepond\Traits\HasFiles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\ReservationStatus;
 
 class Car extends Model
 {
@@ -114,5 +116,37 @@ class Car extends Model
 
         // Fallback to the public default image
         return asset('images/car-default.jpg');
+    }
+
+    /**
+     * Get the reservations for the car.
+     */
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    /**
+     * Check if car is available for given date range.
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $excludeReservationId
+     * @return bool
+     */
+    public function isAvailable(string $startDate, string $endDate, ?int $excludeReservationId = null): bool
+    {
+        $query = $this->reservations()
+            ->whereIn('status', [
+                ReservationStatus::CONFIRMED,
+                ReservationStatus::ACTIVE
+            ])
+            ->betweenDates($startDate, $endDate);
+
+        if ($excludeReservationId) {
+            $query->where('id', '!=', $excludeReservationId);
+        }
+
+        return $query->count() === 0;
     }
 }

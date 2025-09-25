@@ -38,7 +38,7 @@ class ReservationsPaymentsSeeder extends Seeder
             $dailyRate = $car->price_per_day;
             $totalDays = Carbon::parse($reservationData['start_date'])->diffInDays(Carbon::parse($reservationData['end_date'])) + 1;
             $subtotal = $dailyRate * $totalDays;
-            $taxAmount = $subtotal * 0.21; // 21% tax
+            $taxAmount = $subtotal * 0.07; // 7% tax
             $discountAmount = $reservationData['discount_amount'] ?? 0;
             $totalAmount = $subtotal + $taxAmount - $discountAmount;
 

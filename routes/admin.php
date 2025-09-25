@@ -14,7 +14,8 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
         // Redirect '/admin' to '/admin/cars' with a named route we can reference
         Route::redirect('/', '/admin/cars')->name('home');
         Route::resource('cars', CarsController::class)->except(['show']);
-        Route::resource('reservations', ReservationsController::class)->except(['show']);
+        Route::resource('reservations', ReservationsController::class)->only(['index', 'show', 'edit', 'update']);
+        Route::get('reservations/{reservation}/print', [ReservationsController::class, 'print'])->name('reservations.print');
         Route::resource('clients', ClientsController::class)->except(['show']);
         Route::resource('payments', PaymentsController::class)->except(['show']);
         Route::resource('reports', ReportsController::class)->except(['show']);

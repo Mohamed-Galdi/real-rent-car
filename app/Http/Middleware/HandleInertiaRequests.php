@@ -51,6 +51,10 @@ class HandleInertiaRequests extends Middleware
                 'locale' => config('vilt-filepond.locale'),
                 'chunkSize' => config('vilt-filepond.chunk_size'),
             ],
+            'currency' =>[
+                'symbol' => config('app.currency_symbol'),
+                'code' => config('app.currency_code'),
+            ]
         ];
     }
 }

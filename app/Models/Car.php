@@ -80,7 +80,7 @@ class Car extends Model
      */
     public function getFormattedPriceAttribute()
     {
-        return '€' . number_format($this->price_per_day, 2);
+        return config('app.currency_symbol') . number_format($this->price_per_day, 2);
     }
 
     /**

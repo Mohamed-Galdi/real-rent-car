@@ -41,7 +41,9 @@ const props = defineProps<{
     count: number
     color: string
   }>
+  currency: { symbol: string; code: string }
 }>()
+
 
 // Generate status colors based on the colors from the backend
 const statusColors = computed(() => {
@@ -205,7 +207,7 @@ const destroyCar = () => {
                                 <div class="font-medium">{{ car.year }} {{ car.make }} {{ car.model }}</div>
                             </td>
                             <td class="px-4 py-3">{{ car.license_plate }}</td>
-                            <td class="px-4 py-3">€{{ Number(car.price_per_day).toFixed(2) }}</td>
+                            <td class="px-4 py-3">{{ currency.symbol }}{{ Number(car.price_per_day).toFixed(2) }}</td>
                             <td class="px-4 py-3">
                                 <span
                                   class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium"

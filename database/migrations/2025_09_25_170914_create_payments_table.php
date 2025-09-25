@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
-            $table->string('currency', 3)->default('EUR');
+            $table->string('currency', 3)->default(config('app.currency_code'));
             $table->string('payment_method')->default(PaymentMethod::CREDIT_CARD->value);
             $table->string('status')->default(PaymentStatus::PENDING->value);
             $table->string('transaction_id')->nullable();

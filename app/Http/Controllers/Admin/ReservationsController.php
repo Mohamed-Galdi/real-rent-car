@@ -165,6 +165,7 @@ class ReservationsController extends Controller
             'reservation' => $reservation,
             'statusMeta' => ReservationStatus::getMeta(),
             'paymentStatusMeta' => PaymentStatus::getMeta(),
+            'currency' => config('app.currency_symbol'),
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download($reservation->reservation_number . '.pdf');

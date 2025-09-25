@@ -98,8 +98,7 @@ class Payment extends Model
      */
     public function getFormattedAmountAttribute(): string
     {
-        return $this->currency === 'EUR' ? '€' : $this->currency . ' ';
-        return $formatted . number_format($this->amount, 2);
+        return config('app.currency_symbol') . number_format($this->amount, 2);
     }
 
     /**

@@ -31,6 +31,7 @@ const props = defineProps<{
         status?: string;
     };
     statuses: Record<string, { label: string; count: number; color: string }>;
+    currency: { symbol: string; code: string }
 }>();
 
 // Generate status colors based on the colors from the backend (mirrors Cars)
@@ -257,7 +258,7 @@ watch(search, (v, ov) => {
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                €{{ Number(res.total_amount).toFixed(2) }}
+                                {{ props.currency.symbol }} {{ Number(res.total_amount).toFixed(2) }}
                             </td>
                             <td class="px-4 py-3">
                                 <span

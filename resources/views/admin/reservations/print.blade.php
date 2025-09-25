@@ -118,7 +118,7 @@
                             @foreach($reservation->payments as $p)
                                 <tr>
                                     <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">{{ $p->payment_number }}</td>
-                                    <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">€{{ number_format((float)$p->amount, 2) }}</td>
+                                    <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">{{ $currency }}{{ number_format((float)$p->amount, 2) }}</td>
                                     <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">{{ $p->payment_method->value ?? $p->payment_method }}</td>
                                     <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">{{ ucfirst(str_replace('_',' ', $p->status->value ?? $p->status)) }}</td>
                                     <td style="padding: 6px 4px; border-bottom: 1px solid #F3F4F6;">{{ optional($p->processed_at)->format('Y-m-d H:i') ?? '—' }}</td>
@@ -133,11 +133,11 @@
         <div class="section">
             <div class="section-header">Totals</div>
             <div class="section-body">
-                <div class="row"><span class="label">Daily Rate</span><span class="value">€{{ number_format((float)$reservation->daily_rate, 2) }}</span></div>
-                <div class="row"><span class="label">Subtotal</span><span class="value">€{{ number_format((float)$reservation->subtotal, 2) }}</span></div>
-                <div class="row"><span class="label">Tax</span><span class="value">€{{ number_format((float)$reservation->tax_amount, 2) }}</span></div>
-                <div class="row"><span class="label">Discount</span><span class="value">-€{{ number_format((float)$reservation->discount_amount, 2) }}</span></div>
-                <div class="row totals"><span class="label">Total</span><span class="value">€{{ number_format((float)$reservation->total_amount, 2) }}</span></div>
+                <div class="row"><span class="label">Daily Rate</span><span class="value">{{ $currency }}{{ number_format((float)$reservation->daily_rate, 2) }}</span></div>
+                <div class="row"><span class="label">Subtotal</span><span class="value">{{ $currency }}{{ number_format((float)$reservation->subtotal, 2) }}</span></div>
+                <div class="row"><span class="label">Tax</span><span class="value">{{ $currency }}{{ number_format((float)$reservation->tax_amount, 2) }}</span></div>
+                <div class="row"><span class="label">Discount</span><span class="value">-{{ $currency }}{{ number_format((float)$reservation->discount_amount, 2) }}</span></div>
+                <div class="row totals"><span class="label">Total</span><span class="value">{{ $currency }}{{ number_format((float)$reservation->total_amount, 2) }}</span></div>
             </div>
         </div>
     </div>

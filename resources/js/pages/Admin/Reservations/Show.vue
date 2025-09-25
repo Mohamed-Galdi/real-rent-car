@@ -8,6 +8,7 @@ const props = defineProps<{
   reservation: any
   statusMeta: Array<{ value: string; label: string; color: string }>
   paymentStatusMeta: Array<{ value: string; label: string }>
+  currency: { symbol: string; code: string }
 }>()
 
 const statusMap = computed(() => {
@@ -31,7 +32,7 @@ function fmtDate(d?: string) {
 }
 function fmtMoney(n?: number | string) {
   const v = Number(n ?? 0)
-  return `€${v.toFixed(2)}`
+  return `${props.currency.symbol}${v.toFixed(2)}`
 }
 </script>
 

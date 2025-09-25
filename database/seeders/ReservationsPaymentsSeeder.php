@@ -302,7 +302,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 'reservation_id' => $reservation->id,
                 'user_id' => $reservation->user_id,
                 'amount' => $paymentAmount,
-                'currency' => 'EUR',
+                'currency' => config('app.currency_code'),
                 'payment_method' => $scenario['method'],
                 'status' => $scenario['status'],
                 'transaction_id' => $this->generateTransactionId(),

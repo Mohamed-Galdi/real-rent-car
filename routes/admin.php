@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ReservationsController;
 use App\Http\Controllers\Admin\ClientsController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\SupportController;
 
 Route::middleware(['auth', 'verified', 'active', 'admin'])
     ->prefix('admin')
@@ -31,4 +32,14 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
 
         // Reports
         Route::resource('reports', ReportsController::class)->except(['show']);
+
+        // Support
+        Route::resource('support', SupportController::class)->only(['index']);
+        Route::get('/support/tickets/{ticket}', [SupportController::class, 'show'])
+        ->name('support.show');
+        Route::post('/support/tickets/{ticket}/reply', [SupportController::class, 'reply'])
+        ->name('support.reply');
+        Route::post('/support/tickets/{ticket}/close', [SupportController::class, 'close'])
+        ->name('support.close');
+
     });

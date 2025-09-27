@@ -31,6 +31,7 @@
     "dependencies": {
         "@inertiajs/vue3": "^2.1.0",
         "@vueuse/core": "^12.8.2",
+        "chart.js": "^4.5.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "filepond": "^4.32.9",

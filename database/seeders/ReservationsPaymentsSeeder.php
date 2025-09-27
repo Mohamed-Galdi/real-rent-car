@@ -10,6 +10,7 @@ use App\Enums\UserRole;
 use App\Enums\ReservationStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\CarStatus;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -21,7 +22,7 @@ class ReservationsPaymentsSeeder extends Seeder
     public function run(): void
     {
         $users = User::where('role', UserRole::CLIENT)->get();
-        $cars = Car::where('status', 'available')->take(20)->get();
+        $cars = Car::where('status', 'available')->take(25)->get(); // Increased to handle more reservations
 
         if ($users->isEmpty() || $cars->isEmpty()) {
             $this->command->error('Please ensure you have client users and available cars in the database first.');
@@ -29,10 +30,17 @@ class ReservationsPaymentsSeeder extends Seeder
         }
 
         $reservations = $this->getReservationData();
+        $usedCars = []; // Track which cars are assigned to which reservations
 
         foreach ($reservations as $reservationData) {
             $user = $users->random();
-            $car = $cars->random();
+
+            // For same-day reservations, try to reuse cars if possible
+            if ($this->isSameDayReservation($reservationData, $reservations, $usedCars)) {
+                $car = $this->findAvailableCarForSameDay($cars, $usedCars, $reservationData);
+            } else {
+                $car = $cars->random();
+            }
 
             // Calculate amounts
             $dailyRate = $car->price_per_day;
@@ -65,14 +73,113 @@ class ReservationsPaymentsSeeder extends Seeder
                 'updated_at' => $reservationData['updated_at'],
             ]);
 
+            // Track the car usage
+            $usedCars[] = [
+                'car_id' => $car->id,
+                'reservation_id' => $reservation->id,
+                'start_date' => $reservationData['start_date'],
+                'end_date' => $reservationData['end_date'],
+                'status' => $reservationData['status'],
+            ];
+
+            // Update car status based on reservation status
+            $this->updateCarStatus($car, $reservationData['status'], $reservationData);
+
             // Create payments based on reservation status
             $this->createPaymentsForReservation($reservation, $reservationData);
         }
 
+        $this->command->info('Created ' . count($reservations) . ' reservations with payments and updated car statuses.');
     }
 
     /**
-     * Get reservation test data covering various scenarios
+     * Update car status based on reservation status and dates
+     */
+    private function updateCarStatus(Car $car, ReservationStatus $reservationStatus, array $reservationData): void
+    {
+        $now = Carbon::now();
+        $startDate = Carbon::parse($reservationData['start_date']);
+        $endDate = Carbon::parse($reservationData['end_date']);
+
+        $newStatus = match ($reservationStatus) {
+            ReservationStatus::PENDING => CarStatus::AVAILABLE, // Keep available until confirmed
+            ReservationStatus::CONFIRMED => $startDate->isFuture() ? CarStatus::RESERVED : CarStatus::RENTED,
+            ReservationStatus::ACTIVE => CarStatus::RENTED,
+            ReservationStatus::COMPLETED => CarStatus::CLEANING, // Car needs cleaning after rental
+            ReservationStatus::CANCELLED => CarStatus::AVAILABLE,
+            ReservationStatus::NO_SHOW => CarStatus::AVAILABLE,
+        };
+
+        // Additional logic for timing
+        if ($reservationStatus === ReservationStatus::CONFIRMED) {
+            if ($startDate->isToday()) {
+                $newStatus = CarStatus::RESERVED; // Reserved for today's pickup
+            } elseif ($startDate->isPast() && $endDate->isFuture()) {
+                $newStatus = CarStatus::RENTED; // Currently being rented
+            } elseif ($endDate->isPast()) {
+                $newStatus = CarStatus::CLEANING; // Should be cleaning after return
+            }
+        }
+
+        $car->update(['status' => $newStatus]);
+
+        $this->command->info("Updated car ID {$car->id} status to: {$newStatus->value}");
+    }
+
+    /**
+     * Check if this is a same-day reservation scenario
+     */
+    private function isSameDayReservation(array $currentReservation, array $allReservations, array $usedCars): bool
+    {
+        $currentDate = Carbon::parse($currentReservation['start_date'])->format('Y-m-d');
+
+        foreach ($usedCars as $usedCar) {
+            $usedDate = Carbon::parse($usedCar['start_date'])->format('Y-m-d');
+            if ($currentDate === $usedDate) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find an available car for same-day reservations (different times)
+     */
+    private function findAvailableCarForSameDay( $cars, array $usedCars, array $reservationData): Car
+    {
+        $requestedDate = Carbon::parse($reservationData['start_date'])->format('Y-m-d');
+        $requestedPickupTime = $reservationData['pickup_time'] ?? '09:00';
+        $requestedReturnTime = $reservationData['return_time'] ?? '18:00';
+
+        // Find cars that are available or have different time slots on the same day
+        foreach ($usedCars as $usedCar) {
+            $usedDate = Carbon::parse($usedCar['start_date'])->format('Y-m-d');
+
+            if ($requestedDate === $usedDate) {
+                // Check if times don't overlap (simplified check)
+                $car = $cars->find($usedCar['car_id']);
+                if ($car && $this->timeSlotsAvailable($requestedPickupTime, $requestedReturnTime)) {
+                    return $car;
+                }
+            }
+        }
+
+        // If no same-day car found, return a random available car
+        return $cars->random();
+    }
+
+    /**
+     * Simple check for available time slots (simplified for demo)
+     */
+    private function timeSlotsAvailable(string $pickupTime, string $returnTime): bool
+    {
+        // Simplified logic - in real world, you'd check actual conflicts
+        return rand(0, 1) === 1; // 50% chance of availability
+    }
+
+    /**
+     * Get reservation test data covering various scenarios including same-day reservations
      */
     private function getReservationData(): array
     {
@@ -137,7 +244,70 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 4. Pending reservation with pending payment
+            // 4. Same-day reservation #1 - Morning slot
+            [
+                'start_date' => $now->copy(),
+                'end_date' => $now->copy(),
+                'status' => ReservationStatus::ACTIVE,
+                'pickup_time' => '08:00',
+                'return_time' => '12:00',
+                'pickup_location' => 'Main Office',
+                'return_location' => 'Main Office',
+                'notes' => 'Same-day morning rental.',
+                'created_at' => $now->copy()->subHours(2),
+                'updated_at' => $now->copy()->subHours(1),
+                'payment_scenarios' => [
+                    [
+                        'status' => PaymentStatus::COMPLETED,
+                        'method' => PaymentMethod::CREDIT_CARD,
+                        'processed_at' => $now->copy()->subHours(2),
+                    ]
+                ]
+            ],
+
+            // 5. Same-day reservation #2 - Afternoon slot
+            [
+                'start_date' => $now->copy(),
+                'end_date' => $now->copy(),
+                'status' => ReservationStatus::CONFIRMED,
+                'pickup_time' => '14:00',
+                'return_time' => '18:00',
+                'pickup_location' => 'Main Office',
+                'return_location' => 'Main Office',
+                'notes' => 'Same-day afternoon rental.',
+                'created_at' => $now->copy()->subHours(4),
+                'updated_at' => $now->copy()->subHours(3),
+                'payment_scenarios' => [
+                    [
+                        'status' => PaymentStatus::COMPLETED,
+                        'method' => PaymentMethod::PAYPAL,
+                        'processed_at' => $now->copy()->subHours(4),
+                    ]
+                ]
+            ],
+
+            // 6. Same-day reservation #3 - Evening slot
+            [
+                'start_date' => $now->copy(),
+                'end_date' => $now->copy(),
+                'status' => ReservationStatus::CONFIRMED,
+                'pickup_time' => '19:00',
+                'return_time' => '23:00',
+                'pickup_location' => 'Downtown Office',
+                'return_location' => 'Downtown Office',
+                'notes' => 'Same-day evening rental.',
+                'created_at' => $now->copy()->subHours(6),
+                'updated_at' => $now->copy()->subHours(5),
+                'payment_scenarios' => [
+                    [
+                        'status' => PaymentStatus::COMPLETED,
+                        'method' => PaymentMethod::STRIPE,
+                        'processed_at' => $now->copy()->subHours(6),
+                    ]
+                ]
+            ],
+
+            // 7. Pending reservation with pending payment
             [
                 'start_date' => $now->copy()->addDays(15),
                 'end_date' => $now->copy()->addDays(18),
@@ -153,7 +323,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 5. Cancelled reservation with refunded payment
+            // 8. Cancelled reservation with refunded payment
             [
                 'start_date' => $now->copy()->addDays(20),
                 'end_date' => $now->copy()->addDays(25),
@@ -173,7 +343,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 6. No-show reservation
+            // 9. No-show reservation
             [
                 'start_date' => $now->copy()->subDays(5),
                 'end_date' => $now->copy()->subDays(2),
@@ -190,7 +360,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 7. Failed payment scenario
+            // 10. Failed payment scenario
             [
                 'start_date' => $now->copy()->addDays(5),
                 'end_date' => $now->copy()->addDays(8),
@@ -212,7 +382,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 8. Partially refunded payment
+            // 11. Partially refunded payment
             [
                 'start_date' => $now->copy()->subDays(12),
                 'end_date' => $now->copy()->subDays(8),
@@ -230,7 +400,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 9. Long-term rental (completed)
+            // 12. Long-term rental (completed)
             [
                 'start_date' => $now->copy()->subDays(45),
                 'end_date' => $now->copy()->subDays(15),
@@ -250,7 +420,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 ]
             ],
 
-            // 10. Weekend rental (completed)
+            // 13. Weekend rental (completed)
             [
                 'start_date' => $now->copy()->subDays(8),
                 'end_date' => $now->copy()->subDays(6),
@@ -302,7 +472,7 @@ class ReservationsPaymentsSeeder extends Seeder
                 'reservation_id' => $reservation->id,
                 'user_id' => $reservation->user_id,
                 'amount' => $paymentAmount,
-                'currency' => config('app.currency_code'),
+                'currency' => config('app.currency_code', 'USD'),
                 'payment_method' => $scenario['method'],
                 'status' => $scenario['status'],
                 'transaction_id' => $this->generateTransactionId(),

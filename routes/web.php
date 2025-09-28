@@ -14,6 +14,8 @@ Route::post('/contact/guestContact', [HomePagesController::class, 'guestContact'
 
 
 Route::get('/fleet/{car}', [BookingController::class, 'show'])->name('fleet.show');
+Route::post('/fleet/{car}', [BookingController::class, 'book'])->name('fleet.book');
+
 Route::get('/booking/{reservation}', [BookingController::class, 'confirmation'])->name('booking.confirmation');
 
 

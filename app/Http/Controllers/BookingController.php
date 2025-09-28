@@ -17,9 +17,14 @@ class BookingController extends Controller
             return redirect()->route('fleet')->with('error', 'This car is not available for booking.');
         }
 
-
         return inertia('Booking', compact('car'));
     }
+
+    public function book(Request $request)
+    {
+        dd('booking');
+    }
+
     public function confirmation(Reservation $reservation)
     {
         // Make sure user can only see their own reservations

@@ -1,10 +1,96 @@
+<script setup lang="ts">
+import HomeLayout from '@/layouts/HomeLayout.vue';
+import { book } from '@/routes/fleet';
+import { useForm, usePage } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
+
+const $page = usePage();
+const car = computed(() => $page.props.car);
+
+const form = useForm({
+    start_date: '',
+    end_date: '',
+    pickup_location: '',
+    return_location: '',
+    driver_license: '',
+    phone: '',
+    additional_notes: '',
+});
+
+// Calculate rental details
+const rentalDays = computed(() => {
+    if (!form.start_date || !form.end_date) return 0;
+    const start = new Date(form.start_date);
+    const end = new Date(form.end_date);
+    const diffTime = end.getTime() - start.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+});
+
+const subtotal = computed(() => {
+    return rentalDays.value * parseFloat(car.value.price_per_day);
+});
+
+const tax = computed(() => {
+    return subtotal.value * 0.07; // 7% tax
+});
+
+const total = computed(() => {
+    return subtotal.value + tax.value;
+});
+
+const canSubmit = computed(() => {
+    return (
+        form.start_date &&
+        form.end_date &&
+        form.pickup_location &&
+        form.return_location &&
+        rentalDays.value > 0
+    );
+});
+
+const submitBooking = () => {
+    form.post(book.url(car.value.id));
+};
+
+// Auto-populate return location when pickup is selected
+watch(
+    () => form.pickup_location,
+    (newLocation) => {
+        if (newLocation && !form.return_location) {
+            form.return_location = newLocation;
+        }
+    },
+);
+
+const images = computed(() => {
+    if (car.value.images && car.value.images.length > 0) {
+        return car.value.images;
+    }
+    return [
+        {
+            url: car.value.image_url,
+            alt: `${car.value.make} ${car.value.model}`,
+        },
+    ];
+});
+
+const commonLocations = [
+    'Downtown Office',
+    'Airport Terminal 1',
+    'Airport Terminal 2',
+    'Central Station',
+    'Mall Plaza',
+    'Hotel District',
+    'Business District',
+];
+</script>
 <template>
     <HomeLayout>
         <div
             class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8"
         >
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <!-- Enhanced Header -->
+                <!--  Header -->
                 <div class="mb-8">
                     <nav
                         class="mb-6 flex items-center space-x-2 text-sm text-gray-500"
@@ -63,9 +149,9 @@
                 </div>
 
                 <div class="grid gap-8 lg:grid-cols-3">
-                    <!-- Enhanced Car Details Section -->
+                    <!--  Car Details Section -->
                     <div class="space-y-8 lg:col-span-2">
-                        <!-- Enhanced Car Images -->
+                        <!--  Car Images -->
                         <div
                             class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg"
                         >
@@ -73,35 +159,13 @@
                                 class="relative h-72 bg-gradient-to-br from-gray-100 to-gray-200 sm:h-96"
                             >
                                 <img
-                                    :src="images[selectedImage]?.url"
-                                    :alt="images[selectedImage]?.alt"
+                                    :src="images[0]?.url"
+                                    alt="car image"
                                     class="h-full w-full object-cover transition-all duration-500"
                                 />
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
-                                ></div>
-
-                                <!-- Enhanced Image Navigation -->
-                                <div
-                                    v-if="images.length > 1"
-                                    class="absolute bottom-6 left-1/2 flex -translate-x-1/2 transform space-x-3"
-                                >
-                                    <button
-                                        v-for="(image, index) in images"
-                                        :key="index"
-                                        @click="selectedImage = index"
-                                        :class="{
-                                            'scale-110 bg-orange-500':
-                                                selectedImage === index,
-                                            'bg-white/70 hover:bg-white/90':
-                                                selectedImage !== index,
-                                        }"
-                                        class="h-4 w-4 rounded-full shadow-lg transition-all duration-300"
-                                    />
-                                </div>
                             </div>
 
-                            <!-- Enhanced Car Info -->
+                            <!--  Car Info -->
                             <div class="p-8">
                                 <div
                                     class="mb-6 flex items-start justify-between"
@@ -174,7 +238,7 @@
                             </div>
                         </div>
 
-                        <!-- Enhanced Booking Form -->
+                        <!--  Booking Form -->
                         <div
                             class="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg"
                         >
@@ -201,11 +265,8 @@
                                 </h3>
                             </div>
 
-                            <form
-                                @submit.prevent="submitBooking"
-                                class="space-y-8"
-                            >
-                                <!-- Enhanced Rental Dates -->
+                            <form class="space-y-8">
+                                <!--  Rental Dates -->
                                 <div class="space-y-4">
                                     <h4
                                         class="flex items-center text-lg font-semibold text-gray-900"
@@ -283,45 +344,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Enhanced Date Conflict Warning -->
-                                <div
-                                    v-if="hasDateConflict"
-                                    class="rounded-xl border-2 border-red-200 bg-red-50 p-6"
-                                >
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0">
-                                            <svg
-                                                class="h-6 w-6 text-red-500"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                                ></path>
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3">
-                                            <h4
-                                                class="font-semibold text-red-800"
-                                            >
-                                                Date Conflict Detected
-                                            </h4>
-                                            <p
-                                                class="mt-1 text-sm text-red-700"
-                                            >
-                                                The selected dates conflict with
-                                                existing reservations. Please
-                                                choose different dates.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Enhanced Locations -->
+                                <!--  Locations -->
                                 <div class="space-y-4">
                                     <h4
                                         class="flex items-center text-lg font-semibold text-gray-900"
@@ -427,112 +450,11 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Enhanced Driver Info -->
-                                <div class="space-y-4">
-                                    <h4
-                                        class="flex items-center text-lg font-semibold text-gray-900"
-                                    >
-                                        <svg
-                                            class="mr-2 h-5 w-5 text-orange-500"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                            ></path>
-                                        </svg>
-                                        Driver Information
-                                    </h4>
-                                    <div class="grid gap-6 md:grid-cols-2">
-                                        <div class="space-y-2">
-                                            <label
-                                                class="block text-sm font-semibold text-gray-700"
-                                            >
-                                                Driver License Number *
-                                            </label>
-                                            <input
-                                                v-model="form.driver_license"
-                                                type="text"
-                                                required
-                                                placeholder="Enter license number"
-                                                class="w-full rounded-xl border-2 border-gray-200 px-4 py-4 text-lg transition-all duration-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
-                                                :class="{
-                                                    'border-red-500 focus:border-red-500 focus:ring-red-500':
-                                                        form.errors
-                                                            .driver_license,
-                                                }"
-                                            />
-                                            <span
-                                                v-if="
-                                                    form.errors.driver_license
-                                                "
-                                                class="text-sm font-medium text-red-500"
-                                            >
-                                                {{ form.errors.driver_license }}
-                                            </span>
-                                        </div>
-
-                                        <div class="space-y-2">
-                                            <label
-                                                class="block text-sm font-semibold text-gray-700"
-                                            >
-                                                Phone Number *
-                                            </label>
-                                            <input
-                                                v-model="form.phone"
-                                                type="tel"
-                                                required
-                                                placeholder="Enter phone number"
-                                                class="w-full rounded-xl border-2 border-gray-200 px-4 py-4 text-lg transition-all duration-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
-                                                :class="{
-                                                    'border-red-500 focus:border-red-500 focus:ring-red-500':
-                                                        form.errors.phone,
-                                                }"
-                                            />
-                                            <span
-                                                v-if="form.errors.phone"
-                                                class="text-sm font-medium text-red-500"
-                                            >
-                                                {{ form.errors.phone }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Enhanced Additional Notes -->
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-semibold text-gray-700"
-                                    >
-                                        Additional Notes
-                                    </label>
-                                    <textarea
-                                        v-model="form.additional_notes"
-                                        rows="4"
-                                        placeholder="Any special requirements or notes..."
-                                        class="w-full resize-none rounded-xl border-2 border-gray-200 px-4 py-4 transition-all duration-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
-                                        :class="{
-                                            'border-red-500 focus:border-red-500 focus:ring-red-500':
-                                                form.errors.additional_notes,
-                                        }"
-                                    ></textarea>
-                                    <span
-                                        v-if="form.errors.additional_notes"
-                                        class="text-sm font-medium text-red-500"
-                                    >
-                                        {{ form.errors.additional_notes }}
-                                    </span>
-                                </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Enhanced Price Summary Sidebar -->
+                    <!--  Price Summary Sidebar -->
                     <div class="lg:col-span-1">
                         <div
                             class="sticky top-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-lg"
@@ -613,7 +535,7 @@
                                         class="flex items-center justify-between py-2"
                                     >
                                         <span class="font-medium text-gray-600"
-                                            >Tax (10%)</span
+                                            >Tax (7%)</span
                                         >
                                         <span
                                             class="text-lg font-bold text-gray-900"
@@ -650,12 +572,12 @@
                                 </div>
                             </div>
 
-                            <!-- Enhanced Book Now Button -->
+                            <!--  Book Now Button -->
                             <button
                                 @click="submitBooking"
                                 :disabled="!canSubmit || form.processing"
                                 :class="{
-                                    'transform bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl':
+                                    'transform cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg hover:scale-[1.01] hover:from-orange-600 hover:to-orange-700 hover:shadow-xl':
                                         canSubmit && !form.processing,
                                     'cursor-not-allowed bg-gray-300 text-gray-500':
                                         !canSubmit || form.processing,
@@ -711,46 +633,17 @@
                                     class="flex items-center justify-center"
                                 >
                                     <svg
-                                        class="mr-2 h-5 w-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                                        class="mr-2 h-5 w-5 fill-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 640 640"
                                     >
                                         <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M5 13l4 4L19 7"
-                                        ></path>
+                                            d="M416 64C433.7 64 448 78.3 448 96L448 128L480 128C515.3 128 544 156.7 544 192L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 192C96 156.7 124.7 128 160 128L192 128L192 96C192 78.3 206.3 64 224 64C241.7 64 256 78.3 256 96L256 128L384 128L384 96C384 78.3 398.3 64 416 64zM438 225.7C427.3 217.9 412.3 220.3 404.5 231L285.1 395.2L233 343.1C223.6 333.7 208.4 333.7 199.1 343.1C189.8 352.5 189.7 367.7 199.1 377L271.1 449C276.1 454 283 456.5 289.9 456C296.8 455.5 303.3 451.9 307.4 446.2L443.3 259.2C451.1 248.5 448.7 233.5 438 225.7z"
+                                        />
                                     </svg>
                                     Book Now
                                 </span>
                             </button>
-
-                            <div class="mt-6 rounded-xl bg-blue-50 p-4">
-                                <div class="flex items-start">
-                                    <svg
-                                        class="mt-0.5 mr-2 h-5 w-5 flex-shrink-0 text-blue-500"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        ></path>
-                                    </svg>
-                                    <p
-                                        class="text-sm font-medium text-blue-700"
-                                    >
-                                        Your booking will be confirmed within 24
-                                        hours. You'll receive an email
-                                        confirmation shortly.
-                                    </p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -758,152 +651,3 @@
         </div>
     </HomeLayout>
 </template>
-
-<script setup lang="ts">
-import HomeLayout from '@/layouts/HomeLayout.vue';
-import { router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
-
-interface Car {
-    id: number;
-    make: string;
-    model: string;
-    year: number;
-    price_per_day: string;
-    description: string;
-    fuel_type: string;
-    image_url: string;
-    images?: Array<{ url: string; alt: string }>;
-}
-
-interface UnavailableDate {
-    start: string;
-    end: string;
-}
-
-interface PageProps {
-    car: Car;
-    unavailableDates: UnavailableDate[];
-    minDate: string;
-    maxDate: string;
-    auth: {
-        user?: {
-            id: number;
-            name: string;
-            email: string;
-        };
-    };
-}
-
-const $page = usePage<PageProps>();
-const car = computed(() => $page.props.car);
-const unavailableDates = computed(() => $page.props.unavailableDates);
-
-const form = useForm({
-    start_date: '',
-    end_date: '',
-    pickup_location: '',
-    return_location: '',
-    driver_license: '',
-    phone: '',
-    additional_notes: '',
-});
-
-const selectedImage = ref(0);
-const showPriceBreakdown = ref(false);
-
-// Calculate rental details
-const rentalDays = computed(() => {
-    if (!form.start_date || !form.end_date) return 0;
-    const start = new Date(form.start_date);
-    const end = new Date(form.end_date);
-    const diffTime = end.getTime() - start.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-});
-
-const subtotal = computed(() => {
-    return rentalDays.value * parseFloat(car.value.price_per_day);
-});
-
-const tax = computed(() => {
-    return subtotal.value * 0.1; // 10% tax
-});
-
-const total = computed(() => {
-    return subtotal.value + tax.value;
-});
-
-// Check if selected dates conflict with unavailable dates
-const hasDateConflict = computed(() => {
-    if (!form.start_date || !form.end_date) return false;
-
-    const start = new Date(form.start_date);
-    const end = new Date(form.end_date);
-
-    return unavailableDates.value.some((unavailable) => {
-        const unavailableStart = new Date(unavailable.start);
-        const unavailableEnd = new Date(unavailable.end);
-
-        return start <= unavailableEnd && end >= unavailableStart;
-    });
-});
-
-const canSubmit = computed(() => {
-    return (
-        form.start_date &&
-        form.end_date &&
-        form.pickup_location &&
-        form.return_location &&
-        form.driver_license &&
-        form.phone &&
-        !hasDateConflict.value &&
-        rentalDays.value > 0
-    );
-});
-
-const submitBooking = () => {
-    if (!$page.props.auth.user) {
-        // Redirect to login
-        router.visit('/login', {
-            data: { redirect: window.location.pathname },
-        });
-        return;
-    }
-
-    form.post(`/booking/${car.value.id}`, {
-        preserveScroll: true,
-    });
-};
-
-// Auto-populate return location when pickup is selected
-watch(
-    () => form.pickup_location,
-    (newLocation) => {
-        if (newLocation && !form.return_location) {
-            form.return_location = newLocation;
-        }
-    },
-);
-
-const images = computed(() => {
-    if (car.value.images && car.value.images.length > 0) {
-        return car.value.images;
-    }
-    return [
-        {
-            url: car.value.image_url,
-            alt: `${car.value.make} ${car.value.model}`,
-        },
-    ];
-});
-
-const commonLocations = [
-    'Downtown Office',
-    'Airport Terminal 1',
-    'Airport Terminal 2',
-    'Central Station',
-    'Mall Plaza',
-    'Hotel District',
-    'Business District',
-];
-</script>

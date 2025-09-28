@@ -1,21 +1,18 @@
 <script setup lang="ts">
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
+import HomeLayout from '@/layouts/HomeLayout.vue';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 </script>
 
 <template>
-    <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
-    >
+    <HomeLayout>
         <Head title="Register" />
 
         <div
@@ -174,5 +171,5 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
             </div>
         </div>
-    </AuthBase>
+    </HomeLayout>
 </template>

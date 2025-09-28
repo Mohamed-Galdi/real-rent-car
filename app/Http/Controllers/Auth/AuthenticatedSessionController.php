@@ -27,11 +27,30 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Show the admin login page.
+     */
+    public function adminLogin(Request $request): Response
+    {
+        return Inertia::render('auth/AdminLogin', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
         $user = $request->validateCredentials();
+
+        // Only allow clients to login through this method
+        if ($user->role !== UserRole::CLIENT) {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'You are not authorized to access this area.',
+            ])->onlyInput('email');
+        }
 
         if (Features::enabled(Features::twoFactorAuthentication()) && $user->hasEnabledTwoFactorAuthentication()) {
             $request->session()->put([
@@ -43,17 +62,36 @@ class AuthenticatedSessionController extends Controller
         }
 
         Auth::login($user, $request->boolean('remember'));
-
         $request->session()->regenerate();
 
-        // Preserve intended() but provide a role-based default route
-        $default = match ($user->role) {
-            UserRole::ADMIN => route('admin.home', absolute: false),
-            UserRole::CLIENT => route('client.home', absolute: false),
-            default => route('home', absolute: false),
-        };
+        return redirect()->intended(route('client.home', absolute: false));
+    }
 
-        return redirect()->intended($default);
+    public function storeAdminLogin(LoginRequest $request): RedirectResponse
+    {
+        $user = $request->validateCredentials();
+
+        // Only allow admins to login through this method
+        if ($user->role !== UserRole::ADMIN) {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'You are not authorized to access the admin area.',
+            ])->onlyInput('email');
+        }
+
+        if (Features::enabled(Features::twoFactorAuthentication()) && $user->hasEnabledTwoFactorAuthentication()) {
+            $request->session()->put([
+                'login.id' => $user->getKey(),
+                'login.remember' => $request->boolean('remember'),
+            ]);
+
+            return to_route('two-factor.login');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('admin.home', absolute: false));
     }
 
     /**

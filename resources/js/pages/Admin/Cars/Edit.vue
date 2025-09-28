@@ -7,6 +7,9 @@ import FileUpload from '@/components/ViltFilePond/FileUpload.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { index } from '@/routes/admin/cars';
+import { store } from '@/routes/admin/cars';
+import { update } from '@/routes/admin/cars';
 
 const props = defineProps<{
     car: any | null;
@@ -87,11 +90,11 @@ function handleFileRemoved(data: { type: string; fileId?: number }) {
 
 function submit() {
     if (isEdit.value) {
-        form.put(`/admin/cars/${props.car.id}`);
+        form.put(update(props.car.id).url);
     } else {
         // for create, pass image temp folders via `image`
         form.image = [...tempFolders.value];
-        form.post('/admin/cars', {
+        form.post(store().url, {
             onSuccess: () => {
                 form.reset();
                 tempFolders.value = [];
@@ -111,7 +114,7 @@ function submit() {
                 <h1 class="text-2xl font-semibold">
                     {{ isEdit ? 'Edit Car' : 'Create Car' }}
                 </h1>
-                <Link href="/admin/cars">
+                <Link :href="index()">
                     <Button variant="outline">Back</Button>
                 </Link>
             </div>
@@ -383,7 +386,7 @@ function submit() {
                                   : 'Create Car'
                         }}
                     </Button>
-                    <Link href="/admin/cars">
+                    <Link :href="index()">
                         <Button type="button" variant="outline">Cancel</Button>
                     </Link>
                 </div>

@@ -1,10 +1,49 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
+import { useForm } from '@inertiajs/vue3';
+import { guestContact } from "@/routes/contact";
+import { ref } from 'vue';
+import { fleet } from '@/routes';
+import { about } from '@/routes';
+
+const form = useForm({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+});
+
+const showNotification = ref(false);
+const notificationMessage = ref('');
+
+const sendTicket = () => {
+    form.post(guestContact().url, {
+        onSuccess() {
+            form.reset();
+            showNotification.value = true;
+            notificationMessage.value = 'Message sent successfully!';
+            setTimeout(() => {
+                showNotification.value = false;
+            }, 2000);
+        },
+        onError() {
+            showNotification.value = true;
+            notificationMessage.value = 'Failed to send message! Please try again.';
+            setTimeout(() => {
+                showNotification.value = false;
+            }, 2000);
+        }
+    });
+}
 </script>
 <template>
     <HomeLayout>
-        <div class="min-h-screen bg-white py-16">
-            <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="min-h-screen bg-white py-16 ">
+            <!-- notification -->
+            <div>
+                <p class="fixed top-24 right-4 bg-slate-700 text-white p-3 rounded-xl" v-if="showNotification">{{ notificationMessage }}</p>
+            </div>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Header Section -->
                 <div class="mb-16 text-center">
                     <h1 class="mb-4 text-4xl font-bold text-gray-900">
@@ -27,7 +66,9 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                                 Send us a Message
                             </h2>
 
-                            <form class="space-y-6">
+                            <form class="space-y-6"
+                            
+                            @submit.prevent="sendTicket">
                                 <!-- Name Field -->
                                 <div>
                                     <label
@@ -42,7 +83,9 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                                         name="name"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
                                         placeholder="Enter your full name"
+                                        v-model="form.name"
                                     />
+                                    <span class="text-red-500" v-if="form.errors.name">{{ form.errors.name }}</span>
                                 </div>
 
                                 <!-- Email Field -->
@@ -59,7 +102,9 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                                         name="email"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
                                         placeholder="Enter your email address"
+                                        v-model="form.email"
                                     />
+                                    <span class="text-red-500" v-if="form.errors.email">{{ form.errors.email }}</span>
                                 </div>
 
                                 <!-- Subject Field -->
@@ -76,7 +121,9 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                                         name="subject"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
                                         placeholder="What is this regarding?"
+                                        v-model="form.subject"
                                     />
+                                    <span class="text-red-500" v-if="form.errors.subject">{{ form.errors.subject }}</span>
                                 </div>
 
                                 <!-- Message Field -->
@@ -93,14 +140,16 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                                         rows="6"
                                         class="resize-vertical w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
                                         placeholder="Tell us how we can help you..."
+                                        v-model="form.message"
                                     ></textarea>
+                                    <span class="text-red-500" v-if="form.errors.message">{{ form.errors.message }}</span>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <div>
                                     <button
                                         type="submit"
-                                        class="w-full rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition-colors duration-200 hover:bg-orange-600"
+                                        class="w-full cursor-pointer rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition-colors duration-200 hover:bg-orange-600"
                                     >
                                         Send Message
                                     </button>
@@ -184,23 +233,18 @@ import HomeLayout from '@/layouts/HomeLayout.vue';
                             </h3>
                             <div class="space-y-3">
                                 <a
-                                    href="/fleet"
+                                    :href="fleet.url()"
                                     class="block font-medium text-orange-500 transition-colors hover:text-orange-600"
                                 >
                                     Browse Our Fleet
                                 </a>
                                 <a
-                                    href="/about"
+                                    :href="about.url()"
                                     class="block font-medium text-orange-500 transition-colors hover:text-orange-600"
                                 >
                                     About Us
                                 </a>
-                                <a
-                                    href="/faq"
-                                    class="block font-medium text-orange-500 transition-colors hover:text-orange-600"
-                                >
-                                    Frequently Asked Questions
-                                </a>
+                                
                             </div>
                         </div>
                     </div>

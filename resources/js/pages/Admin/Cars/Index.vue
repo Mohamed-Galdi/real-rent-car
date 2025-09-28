@@ -15,6 +15,9 @@ import {
 } from '@/components/ui/dialog';
 import { AlertCircle } from 'lucide-vue-next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { create } from '@/routes/admin/cars';
+import { index } from '@/routes/admin/cars';
+import { destroy } from '@/routes/admin/cars';
 
 const props = defineProps<{
   cars: {
@@ -79,7 +82,7 @@ const search = ref(props.filters?.search || '')
 const statusFilter = ref(props.filters?.status || 'all')
 
 function doSearch() {
-  router.get('/admin/cars', { 
+  router.get(index(), { 
     search: search.value,
     status: statusFilter.value === 'all' ? null : statusFilter.value
   }, {
@@ -103,7 +106,7 @@ const openDeleteDialog = (id: number) => {
 const destroyCar = () => {
   if (!carToDelete.value) return;
   
-  router.delete(`/admin/cars/${carToDelete.value}`, {
+  router.delete(destroy(carToDelete.value).url, {
     preserveScroll: true,
     onSuccess: () => {
       showDeleteDialog.value = false;
@@ -120,7 +123,7 @@ const destroyCar = () => {
         <main class="flex-1 p-8 space-y-6">
             <div class="flex items-center justify-between gap-4">
                 <h1 class="text-2xl font-semibold">Cars</h1>
-                <Link href="/admin/cars/create">
+                <Link :href="create()">
                     <Button >
                         + New Car
                     </Button>

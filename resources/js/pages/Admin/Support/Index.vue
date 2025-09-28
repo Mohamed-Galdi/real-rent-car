@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { index, show } from '@/routes/admin/support';
 
 const props = defineProps<{
     tickets: {
@@ -73,7 +74,7 @@ const getTotalCount = (type: 'customer' | 'guest' | undefined): number => {
 
 const doSearch = () => {
     router.get(
-        '/admin/support',
+        index().url,
         {
             search: search.value,
             status: statusFilter.value === 'all' ? null : statusFilter.value,
@@ -106,7 +107,7 @@ const formatDate = (dateString: string) => {
 };
 
 function goToTicket(id: number) {
-    router.visit(`support/tickets/${id}`);
+    router.visit(show(id).url);
 }
 </script>
 

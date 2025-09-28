@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import CarCard from '@/components/CarCard.vue';
 import HomeLayout from '@/layouts/HomeLayout.vue';
-
 import { Head, usePage } from '@inertiajs/vue3';
+import { fleet } from '@/routes';
+import { about } from '@/routes';
 
 interface Car {
     id: number;
@@ -13,36 +14,30 @@ interface Car {
     description: string;
     fuel_type: string;
     image_url: string;
+    color?: string;
+    status?: string;
+    license_plate?: string;
+    image?: string;
 }
 
-interface PageProps {
-    auth: {
-        user?: {
-            role: string;
-        };
-    };
-    homeCars: Car[];
-}
-
-const $page = usePage<PageProps>();
-const homeCars = $page.props.homeCars;
+const $page = usePage();
+const homeCars = $page.props.homeCars as Car[];
 </script>
 
 <template>
-    <Head title="Real Rent Car - Premium Car Rental Service">
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-            rel="stylesheet"
+    <Head>
+        <title>Real Rent Car - Premium Car Rental Service</title>
+        <meta
+            name="description"
+            content="Real Rent Car is a premium car rental platform providing reliable transportation solutions. We offer a wide range of cars for rent, from economy to luxury, for short and long term rentals."
         />
     </Head>
 
     <HomeLayout>
         <main>
-            <!-- Enhanced Hero Section with Light Background -->
+            <!--  Hero Section with Light Background -->
             <section
-                class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 py-24 lg:py-32"
+                class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12"
             >
                 <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-5">
@@ -61,7 +56,7 @@ const homeCars = $page.props.homeCars;
 
                 <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="grid items-center gap-16 lg:grid-cols-2">
-                        <!-- Enhanced Left Content -->
+                        <!--  Left Content -->
                         <div class="space-y-10">
                             <div class="space-y-6">
                                 <div
@@ -84,7 +79,7 @@ const homeCars = $page.props.homeCars;
                                 </div>
 
                                 <h1
-                                    class="text-5xl leading-tight font-bold text-gray-900 lg:text-7xl"
+                                    class="text-3xl leading-tight font-bold text-gray-900 lg:text-6xl"
                                 >
                                     Drive Your
                                     <span
@@ -95,7 +90,7 @@ const homeCars = $page.props.homeCars;
                                 </h1>
 
                                 <p
-                                    class="max-w-lg text-xl leading-relaxed text-gray-600"
+                                    class="max-w-lg text-lg leading-relaxed text-gray-600"
                                 >
                                     Experience luxury and reliability with our
                                     premium fleet. From business meetings to
@@ -105,8 +100,9 @@ const homeCars = $page.props.homeCars;
                             </div>
 
                             <div class="flex flex-col gap-4 sm:flex-row">
-                                <button
-                                    class="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl"
+                                <a
+                                    :href="fleet.url()"
+                                    class="group cursor-pointer inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600  text-md px-5 py-2 font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl"
                                 >
                                     <svg
                                         class="mr-2 h-5 w-5 transition-transform group-hover:translate-x-1"
@@ -122,15 +118,16 @@ const homeCars = $page.props.homeCars;
                                         ></path>
                                     </svg>
                                     Browse Fleet
-                                </button>
-                                <button
-                                    class="inline-flex items-center justify-center rounded-xl border-2 border-gray-300 bg-white px-8 py-4 text-lg font-semibold text-gray-700 transition-all duration-200 hover:border-orange-500 hover:text-orange-600 hover:shadow-lg"
+                                </a>
+                                <a
+                                    :href="about.url()"
+                                    class="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-gray-300 bg-white text-md px-5 py-2 font-semibold text-gray-700 transition-all duration-200 hover:border-orange-500 hover:text-orange-600 hover:shadow-lg"
                                 >
                                     Learn More
-                                </button>
+                                </a>
                             </div>
 
-                            <!-- Enhanced Stats -->
+                            <!--  Stats -->
                             <div
                                 class="grid grid-cols-3 gap-8 border-t border-gray-200 pt-10"
                             >
@@ -190,7 +187,7 @@ const homeCars = $page.props.homeCars;
                 </div>
             </section>
 
-            <!-- Enhanced Featured Cars Section -->
+            <!--  Featured Cars Section -->
             <section id="fleet" class="bg-white py-24">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="mb-20 text-center">
@@ -227,8 +224,9 @@ const homeCars = $page.props.homeCars;
                     </div>
 
                     <div class="mt-16 text-center">
-                        <button
-                            class="inline-flex items-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl"
+                        <a
+                            :href="fleet.url()"
+                            class="inline-flex cursor-pointer items-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl"
                         >
                             <svg
                                 class="mr-2 h-5 w-5"
@@ -244,12 +242,12 @@ const homeCars = $page.props.homeCars;
                                 ></path>
                             </svg>
                             View Complete Fleet
-                        </button>
+                        </a>
                     </div>
                 </div>
             </section>
 
-            <!-- Enhanced Features Section -->
+            <!--  Features Section -->
             <section id="services" class="bg-gray-50 py-24">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="mb-20 text-center">
@@ -358,7 +356,6 @@ const homeCars = $page.props.homeCars;
                 </div>
             </section>
         </main>
-    
     </HomeLayout>
 </template>
 

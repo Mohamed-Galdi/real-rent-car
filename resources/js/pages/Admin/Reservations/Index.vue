@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { show } from '@/routes/admin/reservations';
+import { index } from '@/routes/admin/reservations';
 
 const props = defineProps<{
     reservations: {
@@ -66,12 +68,12 @@ const search = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || 'all');
 
 const navigateToReservation = (id: number) => {
-    router.visit(`/admin/reservations/${id}`);
+    router.visit(show(id).url);
 };
 
 function doSearch() {
     router.get(
-        '/admin/reservations',
+        index().url,
         {
             search: search.value,
             status: statusFilter.value === 'all' ? null : statusFilter.value,

@@ -14,6 +14,10 @@ import {
 } from '@/components/ui/dialog';
 import { AlertCircle } from 'lucide-vue-next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { index } from '@/routes/admin/clients';
+import { suspend } from '@/routes/admin/clients';
+import { activate } from '@/routes/admin/clients';
+
 
 const props = defineProps<{
   client: { id: number; name: string; email: string; is_active: boolean; created_at?: string };
@@ -60,7 +64,7 @@ function fmtMoney(n?: number | string) {
 
 function suspendClient() {
   processingSuspend.value = true;
-  router.patch(`/admin/clients/${props.client.id}/suspend`, {}, {
+  router.patch(suspend(props.client.id), {}, {
     preserveScroll: true,
     onFinish: () => { processingSuspend.value = false; },
     onSuccess: () => { showSuspendDialog.value = false; },
@@ -69,7 +73,7 @@ function suspendClient() {
 
 function activateClient() {
   processingActivate.value = true;
-  router.patch(`/admin/clients/${props.client.id}/activate`, {}, {
+  router.patch(activate(props.client.id), {}, {
     preserveScroll: true,
     onFinish: () => { processingActivate.value = false; },
     onSuccess: () => { showActivateDialog.value = false; },
@@ -107,7 +111,7 @@ const statusStyle = computed(() => {
          
           <Button v-if="client.is_active" variant="destructive" @click="showSuspendDialog = true">Suspend User</Button>
           <Button v-else @click="showActivateDialog = true">Activate User</Button>
-          <Link href="/admin/clients">
+          <Link :href="index()">
             <Button variant="outline">Back</Button>
           </Link>
         </div>

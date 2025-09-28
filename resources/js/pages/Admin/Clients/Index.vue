@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ref, watch, computed } from 'vue';
+import { show , index } from '@/routes/admin/clients';
 
 const props = defineProps<{
   clients: {
@@ -54,7 +55,7 @@ const statusFilter = ref(props.filters?.status || 'all');
 
 function doSearch() {
   router.get(
-    '/admin/clients',
+    index().url,
     {
       search: search.value,
       status: statusFilter.value === 'all' ? null : statusFilter.value,
@@ -71,7 +72,7 @@ watch(search, (v, ov) => {
 });
 
 const navigateToClient = (id: number) => {
-  router.visit(`/admin/clients/${id}`);
+  router.visit(show(id).url);
 };
 </script>
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
+import HomeLayout from '@/layouts/HomeLayout.vue';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
@@ -19,14 +19,11 @@ defineProps<{
 </script>
 
 <template>
-    <AuthBase
-        title="Welcome Back"
-        description="Sign in to your account to continue"
-    >
+    <HomeLayout>
         <Head title="Log in" />
 
         <div
-            class="flex min-h-screen items-center justify-center bg-white px-4 py-12 sm:px-6 lg:px-8"
+            class="flex min-h-[90vh] items-center justify-center  px-4  sm:px-6 lg:px-8"
         >
             <div class="w-full max-w-md space-y-8">
                 <!-- Header -->
@@ -173,5 +170,5 @@ defineProps<{
                 </div>
             </div>
         </div>
-    </AuthBase>
+    </HomeLayout>
 </template>

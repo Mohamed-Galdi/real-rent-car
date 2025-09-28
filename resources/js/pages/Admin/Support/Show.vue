@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { index } from '@/routes/admin/support';
+import { reply } from '@/routes/admin/support';
+import { close } from '@/routes/admin/support';
 
 // Types
 interface Message {
@@ -73,7 +76,7 @@ const submitReply = async () => {
     if (!form.message || form.message.trim().length === 0) return;
 
     try {
-        await form.post(`/admin/support/tickets/${props.ticket.id}/reply`, {
+        await form.post(reply(props.ticket.id).url, {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset('message');
@@ -106,7 +109,7 @@ watch(
 const btnProcessing = ref(false);
 function closeTicket(){
     btnProcessing.value = true;
-    router.post(`/admin/support/tickets/${props.ticket.id}/close`);
+    router.post(close(props.ticket.id).url);
 }
 </script>
 
@@ -143,7 +146,7 @@ function closeTicket(){
                         </div>
                     </div>
                     <div class="mt-2">
-                        <Link href="/admin/support">
+                        <Link :href="index().url">
                             <Button variant="outline">Back</Button>
                         </Link>
                         <Button

@@ -1,15 +1,20 @@
 <?php
 
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomePagesController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [HomePagesController::class, 'index'])->name('home');
 Route::get('/fleet', [HomePagesController::class, 'fleet'])->name('fleet');
-Route::get('/fleet/{car}', [HomePagesController::class, 'show'])->name('fleet.show');
-Route::get('/booking/{reservation}', [HomePagesController::class, 'confirmation'])->name('booking.confirmation');
-Route::get('/contact', [HomePagesController::class, 'contact'])->name('contact');
 Route::get('/about', [HomePagesController::class, 'about'])->name('about');
+Route::get('/contact', [HomePagesController::class, 'contact'])->name('contact');
+Route::post('/contact/guestContact', [HomePagesController::class, 'guestContact'])->name('contact.guestContact');
+
+
+
+Route::get('/fleet/{car}', [BookingController::class, 'show'])->name('fleet.show');
+Route::get('/booking/{reservation}', [BookingController::class, 'confirmation'])->name('booking.confirmation');
 
 
 require __DIR__.'/settings.php';

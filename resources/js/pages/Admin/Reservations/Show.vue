@@ -3,6 +3,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { computed } from 'vue';
+import { index, edit, print } from '@/routes/admin/reservations';
 
 const props = defineProps<{
   reservation: any
@@ -45,13 +46,13 @@ function fmtMoney(n?: number | string) {
           Reservation {{ reservation?.reservation_number }}
         </h1>
         <div class="flex gap-2">
-          <Link href="/admin/reservations">
+          <Link :href="index().url">
             <Button variant="outline">Back</Button>
           </Link>
-          <Link :href="`/admin/reservations/${reservation.id}/edit`">
+          <Link :href="edit(reservation.id).url">
             <Button variant="outline">Edit</Button>
           </Link>
-          <a :href="`/admin/reservations/${reservation.id}/print`" target="_blank" rel="noopener">
+          <a :href="print(reservation.id).url" target="_blank" rel="noopener">
             <Button variant="secondary">Print</Button>
           </a>
         </div>

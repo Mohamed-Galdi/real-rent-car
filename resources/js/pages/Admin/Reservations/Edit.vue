@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { index } from '@/routes/admin/reservations';
+import { update } from '@/routes/admin/reservations';
 
 const props = defineProps<{
     reservation: any;
@@ -36,7 +38,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.put(`/admin/reservations/${props.reservation.id}`);
+    form.put(update(props.reservation.id).url);
 }
 </script>
 
@@ -48,7 +50,7 @@ function submit() {
         <main class="flex-1 space-y-6 p-8">
             <div class="flex items-center justify-between gap-4">
                 <h1 class="text-2xl font-semibold">Edit Reservation</h1>
-                <Link href="/admin/reservations">
+                <Link :href="index().url">
                     <Button variant="outline">Back</Button>
                 </Link>
             </div>
@@ -246,7 +248,7 @@ function submit() {
                     <Button type="submit" :disabled="form.processing">
                         {{ form.processing ? 'Saving...' : 'Save Changes' }}
                     </Button>
-                    <Link href="/admin/reservations">
+                    <Link :href="index().url">
                         <Button type="button" variant="outline">Cancel</Button>
                     </Link>
                 </div>

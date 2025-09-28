@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CarCard from '@/components/CarCard.vue';
 import HomeLayout from '@/layouts/HomeLayout.vue';
-import { PageProps } from '@/types'; // Declare the PageProps variable
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
@@ -9,7 +8,7 @@ const $page = usePage<PageProps>();
 const cars = computed(() => $page.props.cars);
 const filters = computed(() => $page.props.filters);
 const makes = computed(() => $page.props.makes);
-const fuelTypes = computed(() => $page.props.fuel_types);
+const fuelTypes = computed(() => $page.props.fuelTypes);
 const years = computed(() => $page.props.years);
 
 // Filter state
@@ -130,55 +129,10 @@ const hasActiveFilters = computed(() => {
             </div>
 
             <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                <!-- Enhanced Page Header -->
-                <div class="mb-12 text-center">
-                    <div class="mb-6">
-                        <h1
-                            class="mb-4 text-4xl font-bold text-gray-900 lg:text-5xl"
-                        >
-                            Our
-                            <span
-                                class="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"
-                                >Premium</span
-                            >
-                            Fleet
-                        </h1>
-                        <p
-                            class="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600"
-                        >
-                            Discover our complete collection of luxury and
-                            reliable vehicles, carefully selected for your
-                            perfect journey
-                        </p>
-                    </div>
-
-                    <!-- Quick Stats -->
-                    <div
-                        class="mx-auto grid max-w-lg grid-cols-3 gap-6 rounded-2xl bg-white p-6 shadow-lg"
-                    >
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-orange-500">
-                                {{ cars.total }}+
-                            </div>
-                            <div class="text-sm text-gray-600">Vehicles</div>
-                        </div>
-                        <div class="border-x border-gray-200 text-center">
-                            <div class="text-2xl font-bold text-orange-500">
-                                {{ makes.length }}+
-                            </div>
-                            <div class="text-sm text-gray-600">Brands</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-orange-500">
-                                24/7
-                            </div>
-                            <div class="text-sm text-gray-600">Support</div>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <div class="flex flex-col gap-8 lg:flex-row">
-                    <!-- Enhanced Filters Sidebar -->
+                    <!--  Filters Sidebar -->
                     <div class="lg:w-1/4">
                         <!-- Mobile Filter Toggle -->
                         <div class="mb-6 lg:hidden">
@@ -237,42 +191,21 @@ const hasActiveFilters = computed(() => {
                             </button>
                         </div>
 
-                        <!-- Enhanced Filters Panel -->
+                        <!--  Filters Panel -->
                         <div
                             :class="{ hidden: !showFilters }"
-                            class="sticky top-6 space-y-6 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg lg:block"
+                            class="sticky top-16 space-y-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-lg lg:block"
                         >
                             <!-- Search Form -->
                             <div>
-                                <h3
-                                    class="mb-4 flex items-center text-lg font-semibold text-gray-900"
-                                >
-                                    <div
-                                        class="mr-2 rounded-lg bg-orange-100 p-1"
-                                    >
-                                        <svg
-                                            class="h-4 w-4 text-orange-600"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                            ></path>
-                                        </svg>
-                                    </div>
-                                    Search Vehicles
-                                </h3>
+                                
                                 <form @submit="handleSearch" class="space-y-3">
                                     <div class="relative">
                                         <input
                                             v-model="searchQuery"
                                             type="text"
                                             placeholder="Search by make, model, or features..."
-                                            class="w-full rounded-xl border border-gray-300 py-4 pr-4 pl-12 text-gray-900 placeholder-gray-500 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                            class="w-full rounded-xl border border-gray-300 py-2 pr-4 pl-12 text-gray-900 placeholder-gray-500 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                             @keydown.enter="handleSearch"
                                         />
                                         <svg
@@ -291,20 +224,15 @@ const hasActiveFilters = computed(() => {
                                     </div>
                                     <button
                                         type="submit"
-                                        class="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl focus:ring-4 focus:ring-orange-200"
+                                        class="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 font-semibold text-white shadow-lg transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl focus:ring-4 focus:ring-orange-200"
                                     >
                                         Search Fleet
                                     </button>
                                 </form>
                             </div>
 
-                            <div class="border-t border-gray-200 pt-6">
-                                <h3
-                                    class="mb-4 text-lg font-semibold text-gray-900"
-                                >
-                                    Filter Options
-                                </h3>
-                                <div class="space-y-5">
+                            <div class="border-t border-gray-200 pt-4">
+                                <div class="space-y-3">
                                     <!-- Make Filter -->
                                     <div>
                                         <label
@@ -313,7 +241,7 @@ const hasActiveFilters = computed(() => {
                                         >
                                         <select
                                             v-model="selectedMake"
-                                            class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                            class="w-full rounded-xl border border-gray-300 px-4 py-2 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                         >
                                             <option value="">All Makes</option>
                                             <option
@@ -334,7 +262,7 @@ const hasActiveFilters = computed(() => {
                                         >
                                         <select
                                             v-model="selectedFuelType"
-                                            class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                            class="w-full rounded-xl border border-gray-300 px-4 py-2 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                         >
                                             <option value="">
                                                 All Fuel Types
@@ -362,7 +290,7 @@ const hasActiveFilters = computed(() => {
                                         >
                                         <select
                                             v-model="selectedYear"
-                                            class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                            class="w-full rounded-xl border border-gray-300 px-4 py-2 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                         >
                                             <option value="">All Years</option>
                                             <option
@@ -391,7 +319,7 @@ const hasActiveFilters = computed(() => {
                                                     v-model="minPrice"
                                                     type="number"
                                                     placeholder="Min"
-                                                    class="w-full rounded-xl border border-gray-300 py-3 pr-4 pl-8 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                                    class="w-full rounded-xl border border-gray-300 py-2 pr-4 pl-8 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                                 />
                                             </div>
                                             <div class="relative">
@@ -403,7 +331,7 @@ const hasActiveFilters = computed(() => {
                                                     v-model="maxPrice"
                                                     type="number"
                                                     placeholder="Max"
-                                                    class="w-full rounded-xl border border-gray-300 py-3 pr-4 pl-8 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                                                    class="w-full rounded-xl border border-gray-300 py-2 pr-4 pl-8 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
                                                 />
                                             </div>
                                         </div>
@@ -417,54 +345,25 @@ const hasActiveFilters = computed(() => {
                             >
                                 <button
                                     @click="applyFilters"
-                                    class="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl focus:ring-4 focus:ring-orange-200"
+                                    class="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 font-semibold text-white shadow-lg transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl focus:ring-4 focus:ring-orange-200"
                                 >
                                     Apply Filters
                                 </button>
 
                                 <button
-                                    v-if="hasActiveFilters"
                                     @click="clearFilters"
-                                    class="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50"
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50"
                                 >
                                     Clear All Filters
                                 </button>
                             </div>
 
-                            <!-- Sort Options -->
-                            <div class="border-t border-gray-200 pt-6">
-                                <label
-                                    class="mb-2 block text-sm font-medium text-gray-700"
-                                    >Sort Results</label
-                                >
-                                <select
-                                    v-model="sortBy"
-                                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
-                                >
-                                    <option value="make_asc">Make (A-Z)</option>
-                                    <option value="make_desc">
-                                        Make (Z-A)
-                                    </option>
-                                    <option value="price_asc">
-                                        Price (Low to High)
-                                    </option>
-                                    <option value="price_desc">
-                                        Price (High to Low)
-                                    </option>
-                                    <option value="year_asc">
-                                        Year (Oldest First)
-                                    </option>
-                                    <option value="year_desc">
-                                        Year (Newest First)
-                                    </option>
-                                </select>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Enhanced Cars Grid -->
+                    <!--  Cars Grid -->
                     <div class="lg:w-3/4">
-                        <!-- Enhanced Results Summary -->
+                        <!--  Results Summary -->
                         <div
                             class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
                         >
@@ -503,7 +402,7 @@ const hasActiveFilters = computed(() => {
                         <!-- Cars Grid -->
                         <div
                             v-if="cars.data.length > 0"
-                            class="grid gap-8 md:grid-cols-2 xl:grid-cols-3"
+                            class="grid gap-8 md:grid-cols-1 xl:grid-cols-2"
                         >
                             <CarCard
                                 v-for="car in cars.data"
@@ -512,7 +411,7 @@ const hasActiveFilters = computed(() => {
                             />
                         </div>
 
-                        <!-- Enhanced No Results -->
+                        <!--  No Results -->
                         <div
                             v-else
                             class="rounded-2xl border border-gray-200 bg-white p-16 text-center shadow-sm"
@@ -554,7 +453,7 @@ const hasActiveFilters = computed(() => {
                             </button>
                         </div>
 
-                        <!-- Enhanced Pagination -->
+                        <!--  Pagination -->
                         <div
                             v-if="cars.data.length > 0 && cars.last_page > 1"
                             class="mt-12 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
@@ -642,3 +541,8 @@ const hasActiveFilters = computed(() => {
         </div>
     </HomeLayout>
 </template>
+<style scoped>
+    button:hover {
+        cursor: pointer;
+    }
+</style>

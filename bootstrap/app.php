@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'client' => \App\Http\Middleware\ClientMiddleware::class,
             'active' => \App\Http\Middleware\CheckUserActive::class,
+            'restricted' => \App\Http\Middleware\restricted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

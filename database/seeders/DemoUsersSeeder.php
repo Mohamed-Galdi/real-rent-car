@@ -19,7 +19,7 @@ class DemoUsersSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
-                'password' => Hash::make('74108520'),
+                'password' => Hash::make('00000000'),
                 'role' => UserRole::ADMIN,
                 'is_active' => true,
                 'email_verified_at' => now(),
@@ -31,7 +31,7 @@ class DemoUsersSeeder extends Seeder
             ['email' => 'client@example.com'],
             [
                 'name' => 'Client User',
-                'password' => Hash::make('74108520'),
+                'password' => Hash::make('00000000'),
                 'role' => UserRole::CLIENT,
                 'is_active' => true,
                 'email_verified_at' => now(),

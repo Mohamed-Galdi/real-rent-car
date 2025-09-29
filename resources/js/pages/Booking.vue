@@ -1,20 +1,32 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { book } from '@/routes/fleet';
-import { useForm, usePage } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
+import { login } from '@/routes';
+
+interface Car {
+    id: number;
+    make: string;
+    model: string;
+    price_per_day: string;
+    image_url: string;
+    images: { url: string; alt: string }[];
+    fuel_type: string;
+    transmission: string;
+    year: string;
+    description: string;
+    status: string;
+}
 
 const $page = usePage();
-const car = computed(() => $page.props.car);
+const car = computed<Car>(() => $page.props.car as Car);
 
 const form = useForm({
     start_date: '',
     end_date: '',
     pickup_location: '',
     return_location: '',
-    driver_license: '',
-    phone: '',
-    additional_notes: '',
 });
 
 // Calculate rental details
@@ -49,8 +61,30 @@ const canSubmit = computed(() => {
 });
 
 const submitBooking = () => {
-    form.post(book.url(car.value.id));
+    const user = $page.props.auth.user;
+
+    if (!user) {
+        // Not authenticated → redirect to login
+        router.get(login.url());
+        return;
+    }
+
+    if (user.role === 'client') {
+        // Authenticated and role is "user" → make booking
+        form.post(book.url(car.value.id));
+        return;
+    }
+
+    if (user.role === 'admin') {
+        // Authenticated but role is "admin" → show alert
+        alert("You cannot book as an admin.");
+        return;
+    }
+
+    // fallback for any other role
+    alert("Your role does not allow booking.");
 };
+
 
 // Auto-populate return location when pickup is selected
 watch(

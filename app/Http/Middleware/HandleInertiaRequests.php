@@ -54,7 +54,10 @@ class HandleInertiaRequests extends Middleware
             'currency' =>[
                 'symbol' => config('app.currency_symbol'),
                 'code' => config('app.currency_code'),
-            ]
+            ],
+            'flash' => [
+                'restricted_action' => $request->session()->get('restricted_action'),
+            ],
         ];
     }
 }

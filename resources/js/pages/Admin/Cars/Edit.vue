@@ -5,11 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import FileUpload from '@/components/ViltFilePond/FileUpload.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import { index, store, update } from '@/routes/admin/cars';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
-import { index } from '@/routes/admin/cars';
-import { store } from '@/routes/admin/cars';
-import { update } from '@/routes/admin/cars';
 
 const props = defineProps<{
     car: any | null;

@@ -113,6 +113,11 @@ class CarsController extends Controller
             'image.*' => ['string'],
         ]);
 
+        // Restrict this action
+        return redirect()
+            ->back()
+            ->with('restricted_action', 'This is a demo version. For security reasons, create, update, and delete actions are disabled.');
+
         $car = Car::create(collect($validated)->except(['image'])->toArray());
 
         // Handle single image upload if provided
@@ -186,6 +191,12 @@ class CarsController extends Controller
             'image_removed_files.*' => ['integer'],
         ]);
 
+        // Restrict this action
+        return redirect()
+            ->back()
+            ->with('restricted_action', 'This is a demo version. For security reasons, create, update, and delete actions are disabled.');
+
+
         $car->update(collect($validated)->except(['image_temp_folders', 'image_removed_files'])->toArray());
 
         // Ensure single-image semantics: if new temp folders exist, remove any existing 'image' files
@@ -214,6 +225,11 @@ class CarsController extends Controller
      */
     public function destroy(Car $car)
     {
+        // Restrict this action
+        return redirect()
+            ->back()
+            ->with('restricted_action', 'This is a demo version. For security reasons, create, update, and delete actions are disabled.');
+
         $car->delete();
 
         return redirect()

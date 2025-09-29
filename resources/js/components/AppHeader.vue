@@ -27,9 +27,11 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl, urlIsActive } from '@/lib/utils';
 import { index as reservationsIndex } from "@/routes/client/reservations/index";
+import { index as supportIndex } from '@/routes/client/support/index';
+import { home } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import { InertiaLinkProps, Link, usePage } from '@inertiajs/vue3';
-import { Menu, FileCheck } from 'lucide-vue-next';
+import { Menu, FileCheck, LifeBuoy } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Props {
@@ -60,6 +62,11 @@ const mainNavItems: NavItem[] = [
         title: 'Reservations',
         href: reservationsIndex(),
         icon: FileCheck,
+    },
+    {
+        title: 'Support',
+        href: supportIndex(),
+        icon: LifeBuoy,
     },
 ];
 </script>
@@ -113,7 +120,7 @@ const mainNavItems: NavItem[] = [
                     </Sheet>
                 </div>
 
-                <Link :href="reservationsIndex()" class="flex items-center gap-x-2">
+                <Link :href="home.url()" class="flex items-center gap-x-2">
                     <AppLogo />
                 </Link>
 

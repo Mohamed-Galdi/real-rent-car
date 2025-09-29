@@ -1,21 +1,30 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
-import HomeLayout from '@/layouts/HomeLayout.vue';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import HomeLayout from '@/layouts/HomeLayout.vue';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import {
+    ChevronDown,
+    ChevronUp,
+    LoaderCircle,
+    Shield,
+    User,
+} from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const isDemoOpen = ref(false);
 </script>
 
 <template>
@@ -23,7 +32,7 @@ defineProps<{
         <Head title="Log in" />
 
         <div
-            class="flex min-h-[90vh] items-center justify-center  px-4  sm:px-6 lg:px-8"
+            class="flex min-h-[90vh] items-center justify-center px-4 sm:px-6 lg:px-8"
         >
             <div class="w-full max-w-md space-y-8">
                 <!-- Header -->
@@ -34,6 +43,118 @@ defineProps<{
                     <p class="text-gray-600">
                         Sign in to your account to continue
                     </p>
+                </div>
+
+                <!-- Demo Credentials (Collapsible) -->
+                <div
+                    class="overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm"
+                >
+                    <!-- Toggle Button -->
+                    <button
+                        @click="isDemoOpen = !isDemoOpen"
+                        type="button"
+                        class="flex w-full items-center justify-between px-6 py-4 transition-colors hover:bg-blue-100/50"
+                    >
+                        <div class="flex items-center space-x-3">
+                            <div class="rounded-full bg-blue-100 p-2">
+                                <svg
+                                    class="h-4 w-4 text-blue-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-900">
+                                Demo Credentials
+                            </span>
+                        </div>
+                        <ChevronDown
+                            v-if="!isDemoOpen"
+                            class="h-5 w-5 text-gray-600 transition-transform"
+                        />
+                        <ChevronUp
+                            v-else
+                            class="h-5 w-5 text-gray-600 transition-transform"
+                        />
+                    </button>
+
+                    <!-- Collapsible Content -->
+                    <div v-show="isDemoOpen" class="space-y-3 px-6 pb-6">
+                        <!-- Client Demo -->
+                        <div class="mt-2 rounded-lg bg-white p-3 shadow-sm">
+                            <div class="mb-2 flex items-center space-x-2">
+                                <User class="h-4 w-4 text-gray-600" />
+                                <span
+                                    class="text-xs font-semibold tracking-wide text-gray-700 uppercase"
+                                >
+                                    Client Access
+                                </span>
+                            </div>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Email:</span>
+                                    <code
+                                        class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-800"
+                                    >
+                                        client@example.com
+                                    </code>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Password:</span>
+                                    <code
+                                        class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-800"
+                                    >
+                                        00000000
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Demo -->
+                        <div class="rounded-lg bg-white p-3 shadow-sm">
+                            <div class="mb-2 flex items-center space-x-2">
+                                <Shield class="h-4 w-4 text-orange-600" />
+                                <span
+                                    class="text-xs font-semibold tracking-wide text-orange-700 uppercase"
+                                >
+                                    Admin Access
+                                </span>
+                            </div>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Email:</span>
+                                    <code
+                                        class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-800"
+                                    >
+                                        admin@example.com
+                                    </code>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Password:</span>
+                                    <code
+                                        class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-800"
+                                    >
+                                        00000000
+                                    </code>
+                                </div>
+                                <div class="mt-2 border-t border-gray-200 pt-2">
+                                    <a
+                                        href="/admin-secret-url"
+                                        class="text-xs font-medium text-orange-600 hover:text-orange-700 hover:underline"
+                                    >
+                                        → Go to Admin Panel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Status Message -->

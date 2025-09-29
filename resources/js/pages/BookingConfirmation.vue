@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { usePage } from '@inertiajs/vue3';
+import { fleet } from '@/routes';
+import { index } from '@/routes/client/reservations';
 
 interface Reservation {
     id: number;
+    reservation_number: string;
     start_date: string;
     end_date: string;
     pickup_location: string;
@@ -11,7 +14,7 @@ interface Reservation {
     driver_license: string;
     phone: string;
     additional_notes?: string;
-    total_price: string;
+    total_amount: string;
     status: string;
     created_at: string;
     car: {
@@ -19,6 +22,8 @@ interface Reservation {
         model: string;
         year: number;
         image_url: string;
+        description: string;
+        fuel_type: string;
     };
     user: {
         name: string;
@@ -37,7 +42,7 @@ const reservation = $page.props.reservation;
 <template>
     <HomeLayout>
         <div class="min-h-screen bg-white py-12">
-            <div class="mx-auto max-w-4xl px-6">
+            <div class="mx-auto max-w-7xl px-6">
                 <!-- Clean success header with minimal styling -->
                 <div class="mb-12 text-center">
                     <div
@@ -61,7 +66,7 @@ const reservation = $page.props.reservation;
                         Booking Confirmed
                     </h1>
                     <p class="text-gray-600">
-                        Reservation #{{ reservation.id }}
+                        Reservation #{{ reservation.reservation_number }}
                     </p>
                 </div>
 
@@ -82,15 +87,18 @@ const reservation = $page.props.reservation;
                                     :alt="`${reservation.car.make} ${reservation.car.model}`"
                                     class="h-24 w-32 rounded-lg object-cover"
                                 />
-                                <div>
+                                <div class="space-y-2">
                                     <h3
                                         class="text-lg font-medium text-gray-900"
                                     >
                                         {{ reservation.car.make }}
-                                        {{ reservation.car.model }}
+                                        {{ reservation.car.model }} - {{ reservation.car.year }}
                                     </h3>
+                                    <p class="bg-gray-100 px-2 rounded w-fit">
+                                        {{ reservation.car.fuel_type }}
+                                    </p>
                                     <p class="text-gray-600">
-                                        {{ reservation.car.year }}
+                                        {{ reservation.car.description }}
                                     </p>
                                 </div>
                             </div>
@@ -166,14 +174,13 @@ const reservation = $page.props.reservation;
                                 Contact Details
                             </h2>
                             <div class="grid gap-8 md:grid-cols-2">
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
+                                    <div class="flex gap-2">
                                         <span class="text-gray-600">Name:</span>
                                         <span class="font-medium">{{
                                             reservation.user.name
                                         }}</span>
                                     </div>
-                                    <div class="flex justify-between">
+                                    <div class="flex gap-2">
                                         <span class="text-gray-600"
                                             >Email:</span
                                         >
@@ -181,41 +188,7 @@ const reservation = $page.props.reservation;
                                             reservation.user.email
                                         }}</span>
                                     </div>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600"
-                                            >Phone:</span
-                                        >
-                                        <span class="font-medium">{{
-                                            reservation.phone
-                                        }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600"
-                                            >License:</span
-                                        >
-                                        <span class="font-medium">{{
-                                            reservation.driver_license
-                                        }}</span>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-
-                        <!-- Additional Notes -->
-                        <div
-                            v-if="reservation.additional_notes"
-                            class="rounded-lg border border-gray-200 p-6"
-                        >
-                            <h2
-                                class="mb-4 text-xl font-semibold text-gray-900"
-                            >
-                                Additional Notes
-                            </h2>
-                            <p class="leading-relaxed text-gray-700">
-                                {{ reservation.additional_notes }}
-                            </p>
                         </div>
                     </div>
 
@@ -250,7 +223,7 @@ const reservation = $page.props.reservation;
                                         >
                                             ${{
                                                 parseFloat(
-                                                    reservation.total_price,
+                                                    reservation.total_amount,
                                                 ).toFixed(2)
                                             }}
                                         </span>
@@ -303,13 +276,13 @@ const reservation = $page.props.reservation;
                         <!-- Action Buttons -->
                         <div class="space-y-3">
                             <a
-                                href="/client/reservations"
+                                :href="index.url()"
                                 class="block w-full rounded-lg bg-black px-6 py-3 text-center font-medium text-white transition-colors duration-200 hover:bg-gray-800"
                             >
                                 View My Bookings
                             </a>
                             <a
-                                href="/fleet"
+                                :href="fleet.url()"
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-center font-medium text-gray-900 transition-colors duration-200 hover:bg-gray-50"
                             >
                                 Browse More Cars

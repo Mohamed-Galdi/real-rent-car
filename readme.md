@@ -6,6 +6,9 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12-red)](https://laravel.com)
 [![Vue.js](https://img.shields.io/badge/Vue.js-3-green)](https://vuejs.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Mohamed-Galdi/real-rent-car?style=social)](https://github.com/Mohamed-Galdi/real-rent-car/stargazers)
+
+
 
 **[🌐 Visit Live Demo](https://real-rent-car.galdi.dev/)**
 
